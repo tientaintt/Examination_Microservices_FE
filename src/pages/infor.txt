@@ -1,0 +1,1 @@
+This folder contains the larger components that represents the various pages of your application.

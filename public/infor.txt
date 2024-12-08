@@ -1,0 +1,1 @@
+This folder contains static assets that do not require processing, such as HTML files.

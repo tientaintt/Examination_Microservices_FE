@@ -1,0 +1,6 @@
+Better Comments
+Auto Rename Tag
+CSS Peek
+Colorize
+indent-rainbow
+Error Lens
