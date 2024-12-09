@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { getAllMyNotificationService } from "../../../services/ApiService";
+import { getAllMyNotificationService, readNotificationService } from "../../../services/ApiService";
 import notifyIcon from "../../../assets/notification_icon_transparent.png";
 import { useTranslation } from "react-i18next";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useWebSocket } from "../../../routes/WebSocketProvider";
 import Path from "../../../utils/Path";
+import clsx from "clsx";
 
 export default function ButtonNotify() {
     const { t } = useTranslation();
@@ -73,6 +74,17 @@ export default function ButtonNotify() {
         }
     };
 
+    const handleClickNotify=(notification)=>{
+        let check=notification.message.type.includes("TEST")
+        readNotificationService(notification.id).then(
+            res=>{
+                console.log(res)
+            }
+        ).catch(console.log)
+        if(check)
+            navigate(Path.PREPARE_TEST.replace(":testId", notification.message.idOfTypeNotify))
+    }
+
     return (
         <>
             <button
@@ -102,8 +114,8 @@ export default function ButtonNotify() {
                                 return (
                                     <li
                                         key={index}
-                                        className="p-2 text-sm text-gray-600 border-b last:border-none hover:bg-gray-100 flex flex-row items-center"
-                                        onClick={() => navigate(Path.PREPARE_TEST.replace(":testId", notification.message.idOfTypeNotify))}
+                                        className={clsx("p-2 text-sm  border-b last:border-none text-gray-600 hover:bg-gray-100 flex flex-row items-center rounded-sm",notification.read?"bg-slate-50":"bg-slate-400")}
+                                        onClick={() => handleClickNotify(notification)}
                                     >
                                         <img
                                             src={notifyIcon}

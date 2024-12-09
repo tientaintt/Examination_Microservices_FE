@@ -54,7 +54,7 @@ export default function ScoreManagementTeacher() {
                 <FontAwesomeIcon className="mr-2" icon={faLeftLong} />
                 {t('Back to previous page')}
             </div>
-            <h1 className="text-2xl font-bold text-gray-700 mb-6">{t('Score Management')}</h1>
+            <h1 className="text-2xl font-bold text-gray-700 mb-6">{t('Score management')}</h1>
             <input
                 type="text"
                 placeholder={t('Search scores')}

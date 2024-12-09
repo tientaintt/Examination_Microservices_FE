@@ -148,8 +148,8 @@ export default function ExamManagementTeacher() {
                     onChange={(e) => setSortBy(e.target.value)}
                     className="border p-2 rounded bg-white mr-4"
                 >
-                    <option value="testName">{t('Exam Name')}</option>
-                    <option value="startDate">{t('Start Date')}</option>
+                    <option value="testName">{t('Exam name')}</option>
+                    <option value="startDate">{t('Start date')}</option>
 
                 </select>
                 <select

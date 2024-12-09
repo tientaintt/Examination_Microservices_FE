@@ -41,7 +41,7 @@ export default function TestForm({ test, onChange, onSave, openAddQuestionModal 
     return (
         <div>
             <div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-1">{t('Test Name')}</label>
+                <label className="block text-gray-700 font-semibold mb-1">{t('Exam name')}</label>
                 <input
                     type="text"
                     placeholder={t('Enter test name')}
@@ -52,7 +52,7 @@ export default function TestForm({ test, onChange, onSave, openAddQuestionModal 
             </div>
 
             <div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-1">{t('Start Date')}</label>
+                <label className="block text-gray-700 font-semibold mb-1">{t('Start date')}</label>
                 <input
                     type="datetime-local"
                     value={setFormatDateYYYYMMDD(test.startDate)}
@@ -63,7 +63,7 @@ export default function TestForm({ test, onChange, onSave, openAddQuestionModal 
             </div>
 
             <div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-1">{t('End Date')}</label>
+                <label className="block text-gray-700 font-semibold mb-1">{t('End date')}</label>
                 <input
                     type="datetime-local"
                     value={setFormatDateYYYYMMDD(test.endDate)}
@@ -85,7 +85,7 @@ export default function TestForm({ test, onChange, onSave, openAddQuestionModal 
             </div>
 
             <div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-1">{t('Target Score')}</label>
+                <label className="block text-gray-700 font-semibold mb-1">{t('Target score')}</label>
                 <input
                     type="number"
                     placeholder={t('Enter target score')}

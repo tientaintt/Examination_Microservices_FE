@@ -19,7 +19,7 @@ const getAllStudentOfClassUrl = 'exam/student/subject';
 const getAllActiveStudentUrl = 'identity/student';
 const addStudentToClassUrl = 'exam/student/add-to-class';
 const addTeacherManageSubjectUrl = 'exam/teacher/add-manage-subject';
-
+const readNotification='notify/read/{notification_id}'
 const getAllExamOfClassUrl = 'exam/multiple-choice-test/subject';
 const addExamByIdClassroomUrl = 'exam/multiple-choice-test/create'
 const getAllActiveQuestionUrl = 'exam/question/question-group'
@@ -55,6 +55,17 @@ const getAllSubjectManagementUrl='exam/subject/manager'
 const getMCTestOfSubjectManagerAroundTwoWeekUrl='exam/multiple-choice-test/two-weeks-around'
 const getAllExamManageUrl = 'exam/multiple-choice-test/manage';
 const getAllMyNotificationUrl='notify/my'
+export const readNotificationService = async (id) => {
+      let accessToken = getAccessToken();
+      return await axios.request({
+            method: 'post',
+            url: readNotification.replace("{notification_id}",id),
+            headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  "Content-Type": 'application/json'
+            }
+      })
+}
 export const getAllMyNotificationService = async ( page, sortType, column, size) => {
       let accessToken = getAccessToken();
       let urlParam = getAllMyNotificationUrl;
@@ -676,7 +687,8 @@ export const getAllActiveQuestionByQuestionGrIDService = async (id, page, sortTy
       if (queryParams.length > 0) {
             getAllActiveQuestionUrlParam += '?' + queryParams.join('&');
       }
-
+      console.log(search);
+      console.log(getAllActiveQuestionUrlParam);
       return await axios.request({
             method: 'get',
             url: getAllActiveQuestionUrlParam,

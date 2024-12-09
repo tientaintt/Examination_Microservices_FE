@@ -230,13 +230,13 @@ export const Header = () => {
                                         <li >
                                             <NavLink to={Path.TEACHER_SUBJECTS_MANAGE} className="block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <div className="font-semibold">{t("My subject management")}</div>
-                                                <span className="text-sm text-gray-500 dark:text-gray-400">{t("Check my all current subjects.")}</span>
+                                                <span className="text-sm text-gray-500 dark:text-gray-400">{t("Check my all current subjects management.")}</span>
                                             </NavLink >
                                         </li>
                                         <li >
                                             <NavLink to={Path.TEACHER_MANAGE_TESTS} className="block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <div className="font-semibold">{t("Manage tests")}</div>
-                                                <span className="text-sm text-gray-500 dark:text-gray-400">{t("Check my all current subjects.")}</span>
+                                                <span className="text-sm text-gray-500 dark:text-gray-400">{t("Check my all current tests management.")}</span>
                                             </NavLink >
                                         </li>
                                         {/* <li>

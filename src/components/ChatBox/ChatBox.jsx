@@ -200,7 +200,7 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
     // }
 
     // )
-    getAllSenderOfReceiverService(receiverId, page, 2).then(
+    getAllSenderOfReceiverService(receiverId, page,4).then(
       res => {
         console.log(res.data);
         setUsers(prev => {
@@ -228,7 +228,7 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
 
           // Lấy ra các user từ prev mà không có trong newUsers
           const prevUsersNotInNew = prev.filter(user =>
-            newUsers.some(newUser => newUser.userId === user.userId)
+            newUsers.some(newUser => newUser.userId !== user.userId)
           );
 
           console.log('Prev users not in newUsers:', prevUsersNotInNew);

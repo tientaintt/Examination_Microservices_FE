@@ -25,11 +25,11 @@ export default function SubjectDetailTeacher() {
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [sortType, setSortType] = useState('asc');
-    const [sortBy, setSortBy] = useState('testName');
+    const [sortBy, setSortBy] = useState(TEST_NAME);
     const [searchText, setSearchText] = useState('');
     const [size, setSize] = useState(4);
-    const [column, setColumn] = useState(END_DATE);
-    const [search, setSearch] = useState('');
+    
+
     const [isEnded, setIsEnded] = useState(false); // Filter expired or active tests
 
 
@@ -45,9 +45,9 @@ export default function SubjectDetailTeacher() {
     });
     const [addQuestionModal, setAddQuestionModal] = useState(null);
     const sortOptions = [
-        { value: 'testName', label: t('Test Name') },
-        { value: 'startDate', label: t('Start Date') },
-        { value: 'endDate', label: t('End Date') }
+        { value: TEST_NAME, label: t('Exam name') },
+        { value: START_DATE, label: t('Start date') },
+        { value: END_DATE, label: t('End date') }
     ];
     const [students, setStudents] = useState([]);
     const [studentPage, setStudentPage] = useState(0);
@@ -83,10 +83,10 @@ export default function SubjectDetailTeacher() {
     useEffect(() => {
         getSubjectDetail();
 
-    }, [subjectId, page, sortType, column, isEnded]);
+    }, [subjectId,  sortType, isEnded]);
     useEffect(() => {
         fetchTests();
-    }, [])
+    }, [searchText,sortBy,page,sortType,isEnded])
     const getSubjectDetail = () => {
         getSubjectByIdService(subjectId)
             .then((res) => setSubject(res.data))
@@ -94,7 +94,7 @@ export default function SubjectDetailTeacher() {
     };
 
     const fetchTests = () => {
-        getMCTestsOfSubjectService(subjectId, page, sortType, column, size, search, isEnded)
+        getMCTestsOfSubjectService(subjectId, page, sortType, sortBy, size, searchText, isEnded)
             .then((res) => {
                 setTests(res.data.content);
                 setPage(res.data.number);

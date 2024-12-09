@@ -98,15 +98,19 @@ function DoMCTest() {
                   if (!updatedAnswers.some((item) => item.questionId === questionId)) {
                         updatedAnswers.push({ questionId, answer: value });
                   }
+                  console.log(updatedAnswers);
                   return updatedAnswers;
             });
-
+            
+          
+      }, []);
+      useEffect(() => {
+            console.log(listSubmitAnswer)
             setSubmitValue({
-                  multipleChoiceTestId: MCTestId,
-                  submittedAnswers: listSubmitAnswer,
+                multipleChoiceTestId: MCTestId,
+                submittedAnswers: listSubmitAnswer,
             });
-      }, [MCTestId, listSubmitAnswer]);
-
+        }, [listSubmitAnswer, MCTestId]); 
       const handleSubmit = () => {
             submitMCTestService(submitValue)
                   .then(() => navigate(Path.SCORE_DETAIL.replace(':testId', MCTestId)))

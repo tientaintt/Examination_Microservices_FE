@@ -62,8 +62,8 @@ export default function QuestionManagementTeacher() {
         , questionType: ''
     });
     const sortOptions = [
-        { value: 'content', label: t('Question Content') },
-        { value: 'difficulty', label: t('Difficulty') }
+        { value: 'content', label: t('Question content') },
+        
     ];
 
     const questionTypeOptions = [
@@ -73,7 +73,9 @@ export default function QuestionManagementTeacher() {
     ];
 
     const getAllInActiveQuestionByQuestionGrID = async (page, sortType, column, size, search) => {
+       
         getAllInActiveQuestionByQuestionGrIDService(questionGroupId, page, sortType, column, size, search).then((res) => {
+            console.log(res);
             setQuestions(res.data.content);
             setTotalPages(res.data.totalPages);
         }).catch((error) => {
@@ -88,7 +90,9 @@ export default function QuestionManagementTeacher() {
     }
 
     const getAllActiveQuestionByQuestionGrID = async (page, sortType, column, size, search) => {
+       
         getAllActiveQuestionByQuestionGrIDService(questionGroupId, page, sortType, column, size, search).then((res) => {
+            console.log(res)
             setQuestions(res.data.content);
             setTotalPages(res.data.totalPages);
         }).catch((error) => {
@@ -99,17 +103,19 @@ export default function QuestionManagementTeacher() {
     };
 
     const getAllQuestion = (page, sortType, column, size, search) => {
+      
         if (isModeActive)
-            getAllActiveQuestionByQuestionGrID(page, sortType, column, size = 6, search);
+            getAllActiveQuestionByQuestionGrID(page, sortType, column, size , search);
         else
-            getAllInActiveQuestionByQuestionGrID(page, sortType, column, size = 6, search);
+            getAllInActiveQuestionByQuestionGrID(page, sortType, column, size , search);
     };
 
     useEffect(() => {
-        getAllQuestion(page, sortType, sortBy, searchText);
+        getAllQuestion(page, sortType, sortBy,6, searchText);
     }, [questionGroupId, page, sortBy, sortType, searchText, isModeActive]);
 
     const handleSearch = (e) => {
+        console.log(e.target.value)
         setSearchText(e.target.value);
         setPage(0);
     };
@@ -232,6 +238,8 @@ export default function QuestionManagementTeacher() {
         formData.append('file', file);
         importListQuestionIntoQuestionGroupService(formData, questionGroupId).then((res) => {
             getAllActiveQuestionByQuestionGrID();
+            setFile(null)
+            setIsClickImport(false)
             toast.success(t('Import successfuly !'), { position: toast.POSITION.TOP_RIGHT });
         }).catch(e => {
             console.log(e)
@@ -355,7 +363,7 @@ export default function QuestionManagementTeacher() {
                     type="text"
                     placeholder={t('Search questions')}
                     value={searchText}
-                    onChange={handleSearch}
+                    onChange={(e)=>handleSearch(e)}
                     className="border p-2 rounded bg-white"
                 />
                 <select

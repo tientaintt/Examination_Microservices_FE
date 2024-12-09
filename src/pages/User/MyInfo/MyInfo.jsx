@@ -9,7 +9,7 @@ import { displayNameInvalid, emailInvalid, emailRegex, passwordInvalid, password
 import { getUserInfo, saveCredential } from '../../../services/ApiService';
 import { useTranslation } from 'react-i18next';
 function MyInfo() {
-      const {t}=useTranslation();
+      const { t } = useTranslation();
       const navigate = useNavigate()
       document.title = t('My information');
       // State for updating user profile
@@ -31,7 +31,7 @@ function MyInfo() {
       const getMyInfo = () => {
             myInfomationService()
                   .then(res => {
-                        res=res.data
+                        res = res.data
                         setLoginName(res.loginName)
                         setDisplayName(res.displayName)
                         setEmailAddress(res.emailAddress)
@@ -65,12 +65,13 @@ function MyInfo() {
       const handleSubmitUpdateMyInfo = () => {
             updateUserProfileService(displayName, newEmailAddress)
                   .then(res => {
-                        if (!isEmailAddressVerified) {
-                              var userInfo = JSON.parse(getUserInfo());
-                              console.log(userInfo)
-                              userInfo.emailAddress = newEmailAddress;
-                              saveCredential(userInfo);
-                        }
+
+                        var userInfo = JSON.parse(getUserInfo());
+                        console.log(userInfo)
+                        userInfo.emailAddress = res.data.emailAddress;
+                        userInfo.displayName = res.data.displayName;
+                        saveCredential(userInfo);
+
 
                         toast.success(t('Update successfully!'), {
                               position: toast.POSITION.TOP_RIGHT,

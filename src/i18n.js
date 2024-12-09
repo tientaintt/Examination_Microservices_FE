@@ -513,10 +513,21 @@ i18n
           'Teacher home': 'Trang chủ giáo viên',
           'Load more': 'Tải thêm',
           'Notification': 'Thông báo',
-          'No notifications': 'Không có thông báo'
-
-
-
+          'No notifications': 'Không có thông báo',
+          "My subject management": 'Danh sách môn học quản lý',
+          "Manage tests": "Danh sách bài kiểm tra quản lý",
+          "Check my all current subjects management.": "Xem danh sách môn học quản lý.",
+          "Check my all current tests management.": "Xem danh sách bài kiểm tra quản lý.",
+          "Tests": "Danh sách bài kiểm tra",
+          "Ascending": "Tăng dần",
+          "Descending": "Giảm dần",
+          'Name':'Tên',
+          "No students found":"Không tìm thấy danh sách học sinh",
+          "View expired tests":'Xem danh sách bài kiểm tra hết hạn',
+          "Import list question":"Nhập danh sách câu hỏi",
+          "Question management":"Quản lý câu hỏi",
+          'Duration (minutes)':'Thời gian làm (phút)',
+          'Add random questions':'Thêm ngẫu nhiên câu hỏi',
           // more translations...
         }
       }
