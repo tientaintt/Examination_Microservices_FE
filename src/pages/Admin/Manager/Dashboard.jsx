@@ -14,7 +14,7 @@ import {
 } from 'chart.js';
 import { useTranslation } from 'react-i18next';
 
-// Đăng ký các thành phần cần thiết
+
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -153,7 +153,7 @@ function Dashboard() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-3">
                     <div className="bg-blue-500 text-white p-6 rounded-lg shadow-md text-center">
-                        <h3 className="text-xl font-semibold mb-2">{t('Total students')}</h3>
+                        <h3 className="text-xl font-semibold mb-2">{t('Total users')}</h3>
                         <p className="text-3xl font-bold">{counts.totalStudent}</p>
                     </div>
                     <div className="bg-green-500 text-white p-6 rounded-lg shadow-md text-center">

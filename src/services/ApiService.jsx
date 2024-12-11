@@ -40,8 +40,8 @@ const deleteStudentOfClassroomUrl = 'exam/student/remove-from-class'
 const exportListStudentOfClassUrl = 'exam/student/export/subject';
 const getQuestionByIdUrl = 'exam/question/{idQuestion}'
 const exportListQuestionOfQuestionGroupUrl = 'exam/question-group/export/questions'
-const exportScorePDFUrl= 'exam/score/export'
-
+const exportScorePDFUrl= 'exam/score/export/pdf'
+const exportScoreExcelUrl= 'exam/score/export/excel'
 // const importListQuestionIntoQuestionGroupUrl = 'exam/question-group/import/questions'
 const importListQuestionIntoQuestionGroupUrl = 'file/question-group/import/questions'
 const importListStudentIntoSubjectUrl = 'exam/subject/import/students'
@@ -55,6 +55,7 @@ const getAllSubjectManagementUrl='exam/subject/manager'
 const getMCTestOfSubjectManagerAroundTwoWeekUrl='exam/multiple-choice-test/two-weeks-around'
 const getAllExamManageUrl = 'exam/multiple-choice-test/manage';
 const getAllMyNotificationUrl='notify/my'
+const exportListStudentVerifiedUrl='identity/student/export/verified'
 export const readNotificationService = async (id) => {
       let accessToken = getAccessToken();
       return await axios.request({
@@ -304,6 +305,19 @@ export const exportListQuestionOfQuestionGroupService = async (idQuestionGroup) 
             responseType: 'blob',
       })
 }
+export const exportScoreExcelService = async (idScore) => {
+      let accessToken = getAccessToken();
+      return await axios.request({
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: exportScoreExcelUrl + '/' + idScore ,
+            headers: {
+
+                  'Authorization': `Bearer ${accessToken}`
+            },
+            responseType: 'blob',
+      })
+}
 
 export const exportScorePDFService = async (idScore) => {
       let accessToken = getAccessToken();
@@ -319,6 +333,19 @@ export const exportScorePDFService = async (idScore) => {
       })
 }
 
+export const exportListStudentVerifiedService = async (typeExport) => {
+      let accessToken = getAccessToken();
+      return await axios.request({
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: exportListStudentVerifiedUrl + '?typeExport=' + typeExport,
+            headers: {
+
+                  'Authorization': `Bearer ${accessToken}`
+            },
+            responseType: 'blob',
+      })
+}
 export const exportListStudentOfClassService = async (idClass, typeExport) => {
       let accessToken = getAccessToken();
       return await axios.request({

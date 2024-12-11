@@ -235,7 +235,7 @@ i18n
           'Test duration': 'Test duration',
           'We cannot find any exam of this subject.': 'We cannot find any exam of this subject.',
           'Admin dashboard': 'Admin dashboard',
-          'Total students': 'Total students',
+          'Total users': 'Total users',
           'Total tests': 'Total tests',
           'Total subjects': 'Total subjects',
           'Export list question': 'Export list question',
@@ -486,7 +486,7 @@ i18n
           'Test duration': 'Thời gian kiểm tra',
           'We cannot find any exam of this subject.': 'Không tìm thấy bất kỳ bài kiểm tra trong môn học.',
           'Admin dashboard': 'Trang điều khiển quản trị',
-          'Total students': 'Tổng số học sinh',
+          'Total users': 'Tổng số người dùng',
           'Total tests': 'Tổng số bài kiểm tra',
           'Total subjects': 'Tổng số môn học',
           'Export list question': 'Xuất danh sách câu hỏi',
@@ -528,6 +528,8 @@ i18n
           "Question management":"Quản lý câu hỏi",
           'Duration (minutes)':'Thời gian làm (phút)',
           'Add random questions':'Thêm ngẫu nhiên câu hỏi',
+          'Export score detail':'Xuất chi tiết điểm số',
+          'Export list student verified':'Xuất danh sách học sinh đã xác thực.'
           // more translations...
         }
       }

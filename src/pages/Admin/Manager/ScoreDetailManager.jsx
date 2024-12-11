@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import QuizQuestion from '../../../components/exam/QuizQuesiton';
 import { Pagination } from '@mui/material';
 import { toast } from 'react-toastify';
-import { exportScorePDFService } from '../../../services/ApiService';
+import { exportScoreExcelService, exportScorePDFService } from '../../../services/ApiService';
 function ScoreDetailManager() {
       const { t } = useTranslation();
       document.title = t('Score detail management');
@@ -24,12 +24,12 @@ function ScoreDetailManager() {
       const [page, setPage] = useState(0);
       const [size] = useState(12);
       const handleClickExport = () => {
-            exportScorePDFService(score.id).then((res) => {
+            exportScoreExcelService(score.id).then((res) => {
               console.log(res)
               const url = window.URL.createObjectURL(new Blob([res]));
               const link = document.createElement('a');
               link.href = url;
-              link.setAttribute('download', `ScoreDetail.pdf`); // Tên file
+              link.setAttribute('download', `ScoreDetail.xlsx`); // Tên file
               document.body.appendChild(link);
               link.click();
               link.remove();
@@ -98,7 +98,7 @@ function ScoreDetailManager() {
                                                                                     onClick={() => {handleClickExport()}}
                                                                                     className="bg-green-500 text-white px-4 py-2 rounded mt-4"
                                                                               >
-                                                                                    {t('Export pdf score')}
+                                                                                    {t('Export score detail')}
                                                                               </button>
                                                                         </div>
 

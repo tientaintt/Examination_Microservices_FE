@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLeftLong } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { exportScorePDFService } from '../../../services/ApiService';
+import { exportScoreExcelService, exportScorePDFService } from '../../../services/ApiService';
 
 export default function ScoreDetailManagementTeacher() {
     const { t } = useTranslation();
@@ -22,12 +22,12 @@ export default function ScoreDetailManagementTeacher() {
     const [totalPages, setTotalPages] = useState(0);
     const [size] = useState(10); 
     const handleClickExport = () => {
-        exportScorePDFService(scoreDetail.id).then((res) => {
+        exportScoreExcelService(scoreDetail.id).then((res) => {
           console.log(res)
           const url = window.URL.createObjectURL(new Blob([res]));
           const link = document.createElement('a');
           link.href = url;
-          link.setAttribute('download', `ScoreDetail.pdf`); // Tên file
+          link.setAttribute('download', `ScoreDetail.xlsx`); // Tên file
           document.body.appendChild(link);
           link.click();
           link.remove();
@@ -79,7 +79,7 @@ export default function ScoreDetailManagementTeacher() {
                                 onClick={() => { handleClickExport() }}
                                 className="bg-green-500 text-white px-4 py-2 rounded mt-4"
                             >
-                                {t('Export pdf score')}
+                                {t('Export score detail')}
                             </button>
                         </div>
                     </div>

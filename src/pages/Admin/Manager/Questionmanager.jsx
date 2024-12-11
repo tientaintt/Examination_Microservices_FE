@@ -351,6 +351,8 @@ export const Questionmanager = (props) => {
         formData.append('file', file);
         importListQuestionIntoQuestionGroupService(formData, props.id).then((res) => {
             getAllActiveQuestionByQuestionGrID();
+            setIsClickImport(false);
+            setFile(null);
             toast.success(t('Import successfuly !'), { position: toast.POSITION.TOP_RIGHT });
         }).catch(e => {
             console.log(e)
@@ -603,7 +605,7 @@ export const Questionmanager = (props) => {
         });
     }
 
-    const getAllActiveQuestionByQuestionGrID = async (page, sortType, column, size, search) => {
+    const getAllActiveQuestionByQuestionGrID = async (page, sortType, column, size=6, search) => {
         getAllActiveQuestionByQuestionGrIDService(props.id, page, sortType, column, size, search).then((res) => {
             setListAllQuestion(res.data.content);
             setIsLast(res.data.last);

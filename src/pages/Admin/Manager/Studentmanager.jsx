@@ -7,7 +7,7 @@ import PaginationNav from '../../../components/pagination/PaginationNav';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addStudentToClassService, deleteStudentOfClassroomService, exportListStudentOfClassService, getAllActiveStudentService, getAllStudentOfClassService, getAllVerifiedStudentService, importListStudentIntoSubjectService, removeCredential } from '../../../services/ApiService';
+import { addStudentToClassService, deleteStudentOfClassroomService, exportListStudentOfClassService, exportListStudentVerifiedService, getAllActiveStudentService, getAllStudentOfClassService, getAllVerifiedStudentService, importListStudentIntoSubjectService, removeCredential } from '../../../services/ApiService';
 import Path from '../../../utils/Path';
 import clsx from 'clsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -188,6 +188,21 @@ const Studentmanager = ({ showByIdClassRoom = true }) => {
       window.URL.revokeObjectURL(url);
       console.log("successeee")
 
+    }).catch((e) => {
+      console.log(e)
+    })
+  }
+  const handleClickExportStudentsVerified = () => {
+    exportListStudentVerifiedService("excel").then((res) => {
+      console.log(res)
+      const url = window.URL.createObjectURL(new Blob([res]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `StudentVerified.xlsx`); 
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
     }).catch((e) => {
       console.log(e)
     })
@@ -416,7 +431,11 @@ const Studentmanager = ({ showByIdClassRoom = true }) => {
 
                     </div>
                   )}
-
+                  {(!idClassRoom || !showByIdClassRoom) && (
+                    <div className='w-full flex flex-row'>
+                      <Button className="bg-green-500 w-auto mr-1 " handleOnClick={() => { handleClickExportStudentsVerified() }}>{t('Export list student verified')}</Button>
+                    </div>
+                  )}
                 </div>
               </div>
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
