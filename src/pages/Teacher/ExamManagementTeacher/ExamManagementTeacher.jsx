@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { addExamByIdClassroomService, deleteExamService, getAllExamManageService, getAllSubjectManagementService, updateExamService } from '../../../services/ApiService';
+import { addExamByIdClassroomService, convertMillisecondsToTime, deleteExamService, getAllExamManageService, getAllSubjectManagementService, getFormattedDateTimeByMilisecond, updateExamService } from '../../../services/ApiService';
 import ModalCustom from '../../../components/modal/Modal';
 import { Datepicker } from 'flowbite-react';
 import TestForm from '../../../components/exam/TestForm';
@@ -12,6 +12,7 @@ import { faLeftLong } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from 'react-router-dom';
 import Path from '../../../utils/Path';
+import { isAfter } from 'date-fns';
 
 export default function ExamManagementTeacher() {
     const { t } = useTranslation();
@@ -185,35 +186,41 @@ export default function ExamManagementTeacher() {
 
             {/* Exam List */}
             <ul className="space-y-3">
-                { exams.length>0&&exams.map((exam) => (
+                {exams.length > 0 && exams.map((exam) => (
                     <li key={exam.id} className="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
                         <div>
                             <p className="text-lg font-medium text-gray-700">{exam.testName}</p>
-                            <p className="text-gray-500">{t('Start date')}: {new Date(exam.startDate).toLocaleDateString()}</p>
-                            <p className="text-gray-500">{t('End date')}: {new Date(exam.endDate).toLocaleDateString()}</p>
+                            <p className="text-gray-500">{t('Start date')}: {getFormattedDateTimeByMilisecond(exam.startDate) }</p>
+                            <p className="text-gray-500">{t('End date')}: {getFormattedDateTimeByMilisecond(exam.endDate)}</p>
                             <p className="text-gray-500">{t('Duration')}: {exam.testingTime} {t('minutes')}</p>
                             <p>{t('Target score')}: {exam.targetScore}/10</p>
                         </div>
                         <div>
-                            <button
-                                onClick={() => { setSelectedTest(exam); setShowEditModal(true); }}
-                                className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
-                            >
-                                {t('Edit')}
-                            </button>
-                            <button
-                                onClick={() => { setSelectedTest(exam); setShowDeleteModal(true); }}
-                                className="bg-red-500 text-white px-4 py-2 rounded mr-2"
-                            >
-                                {t('Delete')}
-                            </button>
+                            {
+                                
+                                !isAfter(new Date(),new Date(exam.startDate)) && (<>
+                                    <button
+                                        onClick={() => { setSelectedTest(exam); setShowEditModal(true); }}
+                                        className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                                    >
+                                        {t('Edit')}
+                                    </button>
+                                    <button
+                                        onClick={() => { setSelectedTest(exam); setShowDeleteModal(true); }}
+                                        className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+                                    >
+                                        {t('Delete')}
+                                    </button>
+                                </>)
+                            }
+
                             <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => { navigate(Path.TEACHER_MANAGER_SCORE.replace(':idExam?', exam.id)) }} >
                                 {t('Show student score has joined exam')}
                             </button>
                         </div>
                     </li>
                 ))}
-                {exams.length<=0&&<p className="mt-4 text-gray-500">{t('We cannot find any exam.')}</p>}
+                {exams.length <= 0 && <p className="mt-4 text-gray-500">{t('We cannot find any exam.')}</p>}
             </ul>
 
             {/* Pagination */}

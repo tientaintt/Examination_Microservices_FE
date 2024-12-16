@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments } from '@fortawesome/free-regular-svg-icons';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useTranslation } from 'react-i18next';
+import { t } from 'i18next';
 
 
 const ChatBox = ({ senderId, buttonSize }) => {
@@ -17,6 +19,7 @@ const ChatBox = ({ senderId, buttonSize }) => {
   const [receiver, setReceiver] = useState(null);
   const [reload, setReload] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation();
   const clientRef = useRef(null);
   const chatMessagesRef = useRef(null);
   const [showUserList, setShowUserList] = useState(false);
@@ -154,7 +157,7 @@ const ChatBox = ({ senderId, buttonSize }) => {
                     disabled={!connected}
                     className={`p-3 rounded-lg ${!connected ? 'bg-gray-300' : 'bg-blue-500 hover:bg-blue-600'} text-white font-semibold disabled:cursor-not-allowed`}
                   >
-                    Send
+                    {t('Send')}
                   </button>
                 </div>
               </div>
@@ -175,7 +178,8 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(Number(0));
   const [totalElement, setTotalElement] = useState(0);
-  const [hasMore, setHasMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false);
+  const [searchData, setSearchData] = useState(null);
   useEffect(() => {
     // getAllSenderOfReceiverService(receiverId, page, 5).then(
     //   res => {
@@ -200,7 +204,7 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
     // }
 
     // )
-    getAllSenderOfReceiverService(receiverId, page,4).then(
+    getAllSenderOfReceiverService(receiverId, searchData, page, 4).then(
       res => {
         console.log(res.data);
         setUsers(prev => {
@@ -238,7 +242,7 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
             ...updatedUsers,
             ...prevUsersNotInNew
           ];
-      
+
 
           return allUsers;
         });
@@ -250,26 +254,35 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
     );
 
 
-  }, [page, reload]);
+  }, [page, reload, searchData]);
 
   return (
     <div className="space-y-4 bg-gray-50 p-4 rounded-lg shadow-md w-full">
-      <h2 className="text-xl font-semibold mb-4">Chat</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('Chat')}</h2>
+      <div className="flex mb-4">
+            <input
+              onChange={(e) => { setSearchData(e.target.value) }}
+              type="text"
+              className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-2xl w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder={t("Search")}
+            />
+          </div>
       <div
         id="scrollableDiv"
         className='h-[80px] overflow-y-auto scroll-smooth'
       >
         <InfiniteScroll
-        className='w-full'
+          className='w-full'
           scrollableTarget="scrollableDiv"
           dataLength={totalElement} // This is important field to render the next data
           next={() => setPage(page + 1)}
           hasMore={hasMore}
           loader={<h4>Loading...</h4>}
-          
+
           scrollThreshold={0.9}
 
         >
+         
           {users.map((user) => {
             console.log(users)
             return (

@@ -34,7 +34,7 @@ export default function QuestionGroupManagementTeacher() {
     const [showModal, setShowModal] = useState(false);
     const [editQuestionSet, setEditQuestionSet] = useState(null);
     const [idDelete, setIdDelete] = useState(undefined);
-
+    const [size,setSize]=useState(7);
     const [newQuestionSet, setNewQuestionSet] = useState({
         code: '',
         name: '',
@@ -89,7 +89,7 @@ export default function QuestionGroupManagementTeacher() {
             getAllUnActiveQuestionGroupBySubjectId(page, sortType, column, size, search);
     }
     useEffect(() => {
-        getAllQuestionGroup(page, sortType, sortBy, searchText);
+        getAllQuestionGroup(page, sortType, sortBy,size, searchText);
     }, [subjectId, page, sortBy, sortType, searchText, isModeActive]);
     const handleClose = () => {
         setShowModal(false);
@@ -104,7 +104,7 @@ export default function QuestionGroupManagementTeacher() {
         handleClose();
         activeQuestionGroupService(questionGrId).then((res) => {
             toast.success('Active question group successfuly !', { position: toast.POSITION.TOP_RIGHT });
-            getAllQuestionGroup();
+            getAllQuestionGroup(page, sortType, sortBy,size, searchText);
         }).catch((error) => {
             toast.error(t('Active question group fail !'), {
                 position: toast.POSITION.TOP_RIGHT,
@@ -117,7 +117,7 @@ export default function QuestionGroupManagementTeacher() {
             // Update existing question set
             updateQuestionGroupService(newQuestionSet).then((res) => {
                 handleClose()
-                getAllQuestionGroup();
+                getAllQuestionGroup(page, sortType, sortBy,size, searchText);
             }).catch((error) => {
                 toast.error(t('Update question group fail !'), {
                     position: toast.POSITION.TOP_RIGHT,
@@ -128,7 +128,7 @@ export default function QuestionGroupManagementTeacher() {
             addQuestionGroupService(newQuestionSet).then((res) => {
                 console.log(res)
                 handleClose();
-                getAllQuestionGroup();
+                getAllQuestionGroup(page, sortType, sortBy,size, searchText);
             }
             ).catch((error) => {
                 toast.error(t('Add question group fail !'), {
@@ -142,7 +142,7 @@ export default function QuestionGroupManagementTeacher() {
 
         deleteQuestionGroupService(questionGrId).then((res) => {
             handleClose();
-            getAllQuestionGroup();
+            getAllQuestionGroup(page, sortType, sortBy,size, searchText);
             toast.success(t('Delete question group successfuly !'), { position: toast.POSITION.TOP_RIGHT });
         }).catch((error) => {
             toast.error(t('Delete question group fail !'), {
@@ -234,8 +234,8 @@ export default function QuestionGroupManagementTeacher() {
                                     </button>
                                     <button
                                         onClick={() => handleActiveQuestionGr(set.id)}
-                                        className={`px-3 py-1 ${!set.isEnable ? 'bg-gray-300' : ' bg-yellow-500'} text-white rounded hover:bg-yellow-600`}
-                                        disabled={!set.isEnable}
+                                        className={`px-3 py-1 ${set.isEnable ? 'bg-gray-300' : ' bg-yellow-500'} text-white rounded hover:bg-yellow-600`}
+                                        disabled={set.isEnable}
                                     >
                                         {t('Active')}
                                     </button>
@@ -272,14 +272,14 @@ export default function QuestionGroupManagementTeacher() {
                     <div className="flex flex-col space-y-4">
                         <input
                             type="text"
-                            placeholder={t('Code')}
+                            placeholder={t('Question group code')}
                             value={newQuestionSet.code}
                             onChange={(e) => setNewQuestionSet({ ...newQuestionSet, code: e.target.value })}
                             className="border p-2 rounded"
                         />
                         <input
                             type="text"
-                            placeholder={t('Name')}
+                            placeholder={t('Question group name')}
                             value={newQuestionSet.name}
                             onChange={(e) => setNewQuestionSet({ ...newQuestionSet, name: e.target.value })}
                             className="border p-2 rounded"

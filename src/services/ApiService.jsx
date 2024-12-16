@@ -42,6 +42,7 @@ const getQuestionByIdUrl = 'exam/question/{idQuestion}'
 const exportListQuestionOfQuestionGroupUrl = 'exam/question-group/export/questions'
 const exportScorePDFUrl= 'exam/score/export/pdf'
 const exportScoreExcelUrl= 'exam/score/export/excel'
+const exportlogEventExcelUrl='exam/track-event/export'
 // const importListQuestionIntoQuestionGroupUrl = 'exam/question-group/import/questions'
 const importListQuestionIntoQuestionGroupUrl = 'file/question-group/import/questions'
 const importListStudentIntoSubjectUrl = 'exam/subject/import/students'
@@ -318,7 +319,18 @@ export const exportScoreExcelService = async (idScore) => {
             responseType: 'blob',
       })
 }
-
+export const exportLogEventExcelService = async (idScore) => {
+      let accessToken = getAccessToken();
+      return await axios.request({
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: exportlogEventExcelUrl + '/' + idScore,
+            headers: {
+                  'Authorization': `Bearer ${accessToken}`
+            },
+            responseType: 'blob',
+      })
+}
 export const exportScorePDFService = async (idScore) => {
       let accessToken = getAccessToken();
       return await axios.request({

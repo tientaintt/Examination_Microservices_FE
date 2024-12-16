@@ -52,7 +52,7 @@ export default function QuestionManagementTeacher() {
     const [newQuestion, setNewQuestion] = useState({
         content: '',
         difficulty: '',
-        questionType: 'Multiple Choice', // Default type
+        questionType: 'Multiple Choice', 
         answers: []
     });
     const [questionSelect, setQuestionSelect] = useState({
@@ -173,7 +173,7 @@ export default function QuestionManagementTeacher() {
             console.log(listAnswer[0])
             console.log(newBody);
             addQuestionByQuestionGroupService(newBody).then((res) => {
-                getAllQuestion();
+                getAllQuestion(page, sortType, sortBy,6, searchText);
                 handleClose();
                 toast.success(t('Add question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
             }).catch((error) => {
@@ -183,7 +183,7 @@ export default function QuestionManagementTeacher() {
 
         if (showDeleteModal)
             deleteQuestionService(body.id).then((res) => {
-                getAllQuestion();
+                getAllQuestion(page, sortType, sortBy,6, searchText);
                 handleClose();
                 toast.success(t('Delete question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
             }).catch((error) => {
@@ -204,7 +204,7 @@ export default function QuestionManagementTeacher() {
     }
     const handleClickActive = (id) => {
         activeQuestionService(id).then((res) => {
-            getAllQuestion(page, sortType, sortBy, searchText);
+            getAllQuestion(page, sortType, sortBy,6, searchText);
             handleClose();
         }).catch((error) => {
             toast.error(t('Active subject fail !'), {
@@ -309,7 +309,7 @@ export default function QuestionManagementTeacher() {
         }
         console.log(newBody)
         updateQuestionService(newBody).then((res) => {
-            getAllQuestion();
+            getAllQuestion(page, sortType, sortBy,6, searchText);
             handleClose();
             toast.success('Edit question successfuly !', { position: toast.POSITION.TOP_RIGHT });
 
@@ -420,11 +420,11 @@ export default function QuestionManagementTeacher() {
                     {questions.length > 0 ? (
                         questions.map(question => (
                             <li key={question.id} className="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
-                                <div>
+                                <div className='w-[80%]'>
                                     <p className="text-lg font-medium text-gray-700" dangerouslySetInnerHTML={{ __html: question.content }} ></p>
                                     <p className="text-sm text-gray-500">{t('Question type')}: {question.questionType}</p>
                                 </div>
-                                <div>
+                                <div className='w-[20%]'>
                                     <button
                                         className="px-3 py-1 bg-green-500 text-white rounded mr-2 hover:bg-green-600"
                                         onClick={() => openEditModal(question)}

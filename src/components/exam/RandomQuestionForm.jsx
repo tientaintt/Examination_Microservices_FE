@@ -33,18 +33,24 @@ export default function RandomQuestionForm({ onSave, subjectId, initialSelectedQ
         });
     };
 
-    const handleQuantityChange = (groupId, value) => {
-        setSelectedQuestions((prev) => {
-            const updatedQuestions = prev.filter((q) => q.questionGroupId !== groupId);
-            if (value > 0) {
-                updatedQuestions.push({ questionGroupId: groupId, numberOfQuestion: parseInt(value, 10) });
-            }
-            return updatedQuestions;
-        });
+    const handleQuantityChange = (groupId, e, totalQuestion) => {
+        let value = e.target.value;
+        if (totalQuestion < Number(value)) {
+
+            e.target.value = '';
+
+        } else
+            setSelectedQuestions((prev) => {
+                const updatedQuestions = prev.filter((q) => q.questionGroupId !== groupId);
+                if (value > 0) {
+                    updatedQuestions.push({ questionGroupId: groupId, numberOfQuestion: parseInt(value, 10) });
+                }
+                return updatedQuestions;
+            });
     };
 
     const fetchQuestionGroups = () => {
-        getAllActivateQuestionGroupService(subjectId, page, sortType, sortBy, 10, search)
+        getAllActivateQuestionGroupService(subjectId, page, sortType, sortBy, 4, search)
             .then((res) => {
                 setListQuestionGroup(res.data.content);
                 setTotalPages(res.data.totalPages);
@@ -66,7 +72,7 @@ export default function RandomQuestionForm({ onSave, subjectId, initialSelectedQ
             <div className="mb-4">
                 <input
                     type="text"
-                    placeholder={t('Search Question Groups')}
+                    placeholder={t('Search question groups')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="border p-2 rounded w-full"
@@ -81,18 +87,18 @@ export default function RandomQuestionForm({ onSave, subjectId, initialSelectedQ
                         onChange={() => handleSelectChange(group.id)}
                         className="mr-2"
                     />
-                    <span className="mr-4">{`Group ID: ${group.id} - ${group.name} `}</span>
-                    <span className="mr-4">{`Total number of question: ${group.totalQuestion}`}</span>
+                    <span className="mr-4 w-[30%] overflow-x-hidden" title={`Group ID: ${group.id} - ${group.name}`}>{`Group ID: ${group.id} - ${group.name}`}</span>
+                    <span className="mr-4 w-[30%] ">{`Total number of question: ${group.totalQuestion}`}</span>
 
                     <input
                         type="number"
-                        placeholder={t('Number of Questions')}
+                        placeholder={t('Number of questions')}
                         value={
                             selectedQuestions.find((q) => q.questionGroupId === group.id)?.numberOfQuestion || ''
                         }
-                        onChange={(e) => handleQuantityChange(group.id, e.target.value)}
+                        onChange={(e) => handleQuantityChange(group.id, e, group.totalQuestion)}
                         disabled={!selectedGroups.has(group.id)}
-                        className="border p-2 rounded w-full"
+                        className="border p-2 rounded w-[40%]"
                     />
                 </div>
             ))}
@@ -141,7 +147,7 @@ export default function RandomQuestionForm({ onSave, subjectId, initialSelectedQ
                 onClick={() => onSave(selectedQuestions)}
                 className="bg-green-500 text-white px-4 py-2 rounded mt-4"
             >
-                {t('Save Selected Questions')}
+                {t('Save selected questions')}
             </button>
         </div>
     );

@@ -529,7 +529,18 @@ i18n
           'Duration (minutes)':'Thời gian làm (phút)',
           'Add random questions':'Thêm ngẫu nhiên câu hỏi',
           'Export score detail':'Xuất chi tiết điểm số',
-          'Export list student verified':'Xuất danh sách học sinh đã xác thực.'
+          'Export list student verified':'Xuất danh sách học sinh đã xác thực.',
+          'Privacy status':'Trạng thái lớp học',
+          'Enable status':'Trạng thái mở',
+          'Private':'Riêng tư',
+          'Public':'Công khai',
+          'Managed subjects':'Danh sách môn học quản lý',
+          "No subjects available.":'Không có danh sách môn học khả dụng.',
+          'Get question group failed!':'Lấy danh sách bộ câu hỏi thất bại',
+          'Export event log':"Xuất nhật ký hành động",
+          "Save selected questions":'Lưu câu hỏi đã chọn',
+          'Chat':'Nhắn tin',
+          'Send':'Gửi',
           // more translations...
         }
       }

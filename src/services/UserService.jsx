@@ -21,7 +21,8 @@ const getAllMyTestSpecifyDay='exam/multiple-choice-test/me/specific-day';
 const getMessages='chat/messages/{senderId}/{receiverId}';
 const sendMessage='chat/send';
 const getAllSenderOfReceiver='chat/senders/to/{receiverId}';
-export const getAllSenderOfReceiverService = async (receiverId,page,size) => {
+const sendActivityUserUrl='exam/track-event/create'
+export const getAllSenderOfReceiverService = async (receiverId,searchText,page,size) => {
       let accessToken = getAccessToken();
       let paramUrl = getAllSenderOfReceiver.replace("{receiverId}",receiverId) ;
       let queryParams = [];
@@ -32,6 +33,9 @@ export const getAllSenderOfReceiverService = async (receiverId,page,size) => {
       }
       if (size) {
             queryParams.push(`size=${size}`);
+      }
+      if (searchText) {
+            queryParams.push(`search=${searchText}`);
       }
       if (queryParams.length > 0) {
             paramUrl += '?' + queryParams.join('&');
@@ -304,7 +308,20 @@ export const submitMCTestService = async (value) => {
             }
       })
 }
-
+export const sendActivityUserService = async (value,testTrackingId) => {
+      let accessToken = getAccessToken();
+      console.log(value)
+      return await axios.request({
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: sendActivityUserUrl+'/'+testTrackingId,
+            data: value,
+            headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': "application/json"
+            }
+      })
+}
 export const trackMyTestService = async (MCTestId) => {
       let accessToken = getAccessToken();
       return await axios.request({

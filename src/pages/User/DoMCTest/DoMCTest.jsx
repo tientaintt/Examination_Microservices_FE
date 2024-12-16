@@ -4,11 +4,12 @@ import Path from '../../../utils/Path';
 import classroomPNG from '../../../assets/classroomPNG.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLeftLong } from '@fortawesome/free-solid-svg-icons';
-import { createTestTrackingService, getDoMultipleChoiceTestService, getMyScoreService, submitMCTestService, trackMyTestService } from '../../../services/UserService';
+import { createTestTrackingService, getDoMultipleChoiceTestService, getMyScoreService, sendActivityUserService, submitMCTestService, trackMyTestService } from '../../../services/UserService';
 import { secondsDiff, secondsToTime } from '../../../utils/WebUtils';
 import QuizQuestion from '../../../components/exam/QuizQuesiton';
 import { useTranslation } from 'react-i18next';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Pagination } from '@mui/material';
+import { da } from 'date-fns/locale';
 
 function DoMCTest() {
       const { t } = useTranslation();
@@ -22,8 +23,9 @@ function DoMCTest() {
       const [totalPages, setTotalPages] = useState(0);
       const [page, setPage] = useState(0);
       const [size] = useState(12);
+      const [eventLog,setEventLog]=useState([])
       const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-
+      const [testTrackingId,setTestTrackingId]=useState(null);
       const handleOpenConfirmDialog = () => {
             setOpenConfirmDialog(true);
       };
@@ -36,6 +38,61 @@ function DoMCTest() {
             handleSubmit();
             setOpenConfirmDialog(false);
       };
+
+      const handleClick = (event) => {
+            const data = {
+                  type: 'click',
+                  x: event.clientX,
+                  y: event.clientY,
+                  timestamp: new Date().toISOString(),
+            };
+            console.log(data)
+            setEventLog(prev=>[...prev,data]);
+      };
+
+      const handleKeyDown = (event) => {
+            const data = {
+                  type: 'keydown',
+                  key: event.key,
+                  timestamp: new Date().toISOString(),
+            };
+            console.log(data)
+            setEventLog(prev=>[...prev,data]);
+      };
+
+      const handleMouseMove = (event) => {
+            const data = {
+                  type: 'mousemove',
+                  x: event.clientX,
+                  y: event.clientY,
+                  timestamp: new Date().toISOString(),
+            };
+            console.log(data)
+            setEventLog(prev=>[...prev,data]);
+      };
+
+      const handleVisibilityChange = () => {
+            const data = {
+                  type: 'tab-switch',
+                  visibility: document.visibilityState,
+                  timestamp: new Date().toISOString(),
+            };
+            console.log(data)
+            setEventLog(prev=>[...prev,data]);
+      };
+
+      useEffect(() => {
+            window.addEventListener('click', handleClick);
+            window.addEventListener('keydown', handleKeyDown);
+            // window.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            return () => {
+                  window.removeEventListener('click', handleClick);
+                  window.removeEventListener('keydown', handleKeyDown);
+                  window.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('visibilitychange', handleVisibilityChange);
+            };
+      }, []);
       useEffect(() => {
             document.title = t('Testing');
       }, []);
@@ -72,11 +129,13 @@ function DoMCTest() {
             if (!MCTestId) return;
             trackMyTestService(MCTestId)
                   .then((res) => {
-                        if (!res.hasOwnProperty('data')) return createTestTrackingService(MCTestId);
+                        if (!res.hasOwnProperty('data')) 
+                              return createTestTrackingService(MCTestId);
                         return res;
                   })
                   .then((res) => {
                         setTestingTime(secondsDiff(new Date(res.data.dueTime), new Date()));
+                        setTestTrackingId(res.data.id)
                   })
                   .catch(console.error);
       }, [MCTestId]);
@@ -101,17 +160,20 @@ function DoMCTest() {
                   console.log(updatedAnswers);
                   return updatedAnswers;
             });
-            
-          
+
+
       }, []);
       useEffect(() => {
             console.log(listSubmitAnswer)
             setSubmitValue({
-                multipleChoiceTestId: MCTestId,
-                submittedAnswers: listSubmitAnswer,
+                  multipleChoiceTestId: MCTestId,
+                  submittedAnswers: listSubmitAnswer,
             });
-        }, [listSubmitAnswer, MCTestId]); 
+      }, [listSubmitAnswer, MCTestId]);
       const handleSubmit = () => {
+            console.log(eventLog);
+            sendActivityUserService(eventLog,testTrackingId).then(res=>{
+            }).catch(console.log)
             submitMCTestService(submitValue)
                   .then(() => navigate(Path.SCORE_DETAIL.replace(':testId', MCTestId)))
                   .catch(console.log)
@@ -132,7 +194,7 @@ function DoMCTest() {
                                     <div className='w-[80%] min-h-screen h-full opacity-95 rounded-lg select-none'>
                                           <div className='pl-10 rounded-lg select-none bg-slate-200'>
                                                 {MCTest?.questions?.content?.map((ques, index) => (
-                                                      
+
                                                       <div key={index} className='pt-10'>
                                                             <QuizQuestion indexQuestion={index + page * size} question={ques} handleChooseAnswer={handleChooseAnswer} showScore={false} listSubmitAnswer={listSubmitAnswer} />
                                                       </div>

@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLeftLong } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { exportScoreExcelService, exportScorePDFService } from '../../../services/ApiService';
+import { exportLogEventExcelService, exportScoreExcelService } from '../../../services/ApiService';
 
 export default function ScoreDetailManagementTeacher() {
     const { t } = useTranslation();
@@ -20,24 +20,41 @@ export default function ScoreDetailManagementTeacher() {
     const [scoreDetail, setScoreDetail] = useState(null);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [size] = useState(10); 
+    const [size] = useState(10);
     const handleClickExport = () => {
         exportScoreExcelService(scoreDetail.id).then((res) => {
-          console.log(res)
-          const url = window.URL.createObjectURL(new Blob([res]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', `ScoreDetail.xlsx`); // Tên file
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          window.URL.revokeObjectURL(url);
-          console.log("successeee")
-    
+            console.log(res)
+            const url = window.URL.createObjectURL(new Blob([res]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `ScoreDetail.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+
         }).catch((e) => {
-          console.log(e)
+            console.log(e)
         })
-      }
+    }
+    const handleClickExportLog = () => {
+        exportLogEventExcelService(scoreDetail.id).then((res) => {
+            console.log(res)
+            const url = window.URL.createObjectURL(new Blob([res]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `LogEvent.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+
+        }).catch((e) => {
+            console.log(e)
+        })
+    }
     useEffect(() => {
         fetchScoreDetail();
     }, [page]);
@@ -74,14 +91,25 @@ export default function ScoreDetailManagementTeacher() {
                         <p className={`font-semibold ${scoreDetail.totalScore >= scoreDetail.targetScore ? 'text-green-600' : 'text-red-600'}`}>
                             {scoreDetail.totalScore >= scoreDetail.targetScore ? t('Passed') : t('Failed')}
                         </p>
-                        <div className='flex items-center justify-end'>
-                            <button
-                                onClick={() => { handleClickExport() }}
-                                className="bg-green-500 text-white px-4 py-2 rounded mt-4"
-                            >
-                                {t('Export score detail')}
-                            </button>
+                        <div className='flex flex-row justify-end gap-2'>
+                            <div className='flex items-center justify-end'>
+                                <button
+                                    onClick={() => { handleClickExport() }}
+                                    className="bg-green-500 text-white px-4 py-2 rounded mt-4"
+                                >
+                                    {t('Export score detail')}
+                                </button>
+                            </div>
+                            <div className='flex items-center justify-end'>
+                                <button
+                                    onClick={() => { handleClickExportLog() }}
+                                    className="bg-yellow-500 text-white px-4 py-2 rounded mt-4"
+                                >
+                                    {t('Export event log')}
+                                </button>
+                            </div>
                         </div>
+
                     </div>
 
                     {/* Submitted Questions */}

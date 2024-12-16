@@ -44,7 +44,7 @@ export default function TestForm({ test, onChange, onSave, openAddQuestionModal 
                 <label className="block text-gray-700 font-semibold mb-1">{t('Exam name')}</label>
                 <input
                     type="text"
-                    placeholder={t('Enter test name')}
+                    placeholder={t('Enter exam name')}
                     value={test.testName}
                     onChange={(e) => onChange({ ...test, testName: e.target.value })}
                     className="border p-2 rounded w-full focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"

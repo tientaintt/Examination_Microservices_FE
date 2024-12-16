@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import QuizQuestion from '../../../components/exam/QuizQuesiton';
 import { Pagination } from '@mui/material';
 import { toast } from 'react-toastify';
-import { exportScoreExcelService, exportScorePDFService } from '../../../services/ApiService';
+import { exportLogEventExcelService, exportScoreExcelService, exportScorePDFService } from '../../../services/ApiService';
 function ScoreDetailManager() {
       const { t } = useTranslation();
       document.title = t('Score detail management');
@@ -25,21 +25,37 @@ function ScoreDetailManager() {
       const [size] = useState(12);
       const handleClickExport = () => {
             exportScoreExcelService(score.id).then((res) => {
-              console.log(res)
-              const url = window.URL.createObjectURL(new Blob([res]));
-              const link = document.createElement('a');
-              link.href = url;
-              link.setAttribute('download', `ScoreDetail.xlsx`); // Tên file
-              document.body.appendChild(link);
-              link.click();
-              link.remove();
-              window.URL.revokeObjectURL(url);
-              console.log("successeee")
-        
+                  console.log(res)
+                  const url = window.URL.createObjectURL(new Blob([res]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', `ScoreDetail.xlsx`); // Tên file
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                  window.URL.revokeObjectURL(url);
+                  console.log("successeee")
+
             }).catch((e) => {
-              console.log(e)
+                  console.log(e)
             })
-          }
+      }
+      const handleClickExportLog = () => {
+            exportLogEventExcelService(score.id).then((res) => {
+                  console.log(res)
+                  const url = window.URL.createObjectURL(new Blob([res]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', `LogEvent.xlsx`); // Tên file
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                  window.URL.revokeObjectURL(url);
+
+            }).catch((e) => {
+                  console.log(e)
+            })
+      }
       useEffect(() => {
             getScoreOfStudentService(StudentId, MCTestId, page, undefined, undefined, size)
                   .then((res) => {
@@ -93,13 +109,23 @@ function ScoreDetailManager() {
                                                                               <p><strong>{t('Target score') + ":"}</strong> {score?.targetScore || 0} / 10</p>
                                                                               <p><strong>{t('Description') + ':'}</strong> {score?.multipleChoiceTest?.description || 0}</p>
                                                                         </div>
-                                                                        <div className='flex items-center justify-end'>
-                                                                              <button
-                                                                                    onClick={() => {handleClickExport()}}
-                                                                                    className="bg-green-500 text-white px-4 py-2 rounded mt-4"
-                                                                              >
-                                                                                    {t('Export score detail')}
-                                                                              </button>
+                                                                        <div className='flex flex-row justify-end gap-2'>
+                                                                              <div className='flex items-center justify-end'>
+                                                                                    <button
+                                                                                          onClick={() => { handleClickExport() }}
+                                                                                          className="bg-green-500 text-white px-4 py-2 rounded mt-4"
+                                                                                    >
+                                                                                          {t('Export score detail')}
+                                                                                    </button>
+                                                                              </div>
+                                                                              <div className='flex items-center justify-end'>
+                                                                                    <button
+                                                                                          onClick={() => { handleClickExportLog() }}
+                                                                                          className="bg-yellow-500 text-white px-4 py-2 rounded mt-4"
+                                                                                    >
+                                                                                          {t('Export event log')}
+                                                                                    </button>
+                                                                              </div>
                                                                         </div>
 
                                                                   </div>

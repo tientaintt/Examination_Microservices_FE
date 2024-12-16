@@ -215,7 +215,7 @@ export default function SubjectManagementTeacher() {
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold text-gray-700 mb-4">{t('Managed Subjects')}</h2>
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">{t('Managed subjects')}</h2>
 
                 <ul className="space-y-3">
                     {subjects.length > 0 ? (
@@ -242,8 +242,8 @@ export default function SubjectManagementTeacher() {
                                     </button>
                                     <button
                                         onClick={() => setIdActive(subject.id)}
-                                        className={`px-3 py-1 ${!subject.isEnable ? 'bg-gray-300' : ' bg-yellow-500'} text-white rounded hover:bg-yellow-600`}
-                                        disabled={!subject.isEnable}
+                                        className={`px-3 py-1 ${subject.isEnable ? 'bg-gray-300' : ' bg-yellow-500'} text-white rounded hover:bg-yellow-600`}
+                                        disabled={subject.isEnable}
                                     >
                                         {t('Active')}
                                     </button>
@@ -271,9 +271,9 @@ export default function SubjectManagementTeacher() {
             {isEditModalOpen && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-                        <h2 className="text-xl font-bold mb-4">{t('Edit Subject')}</h2>
+                        <h2 className="text-xl font-bold mb-4">{t('Edit subject')}</h2>
                         {/* Edit Subject form fields */}
-                        <label className="block text-gray-700">{t('Subject Name')}</label>
+                        <label className="block text-gray-700">{t('Subject name')}</label>
                         <input
                             type="text"
                             name="subjectName"
@@ -281,7 +281,7 @@ export default function SubjectManagementTeacher() {
                             onChange={handleEditChange}
                             className="border p-2 w-full rounded mb-4"
                         />
-                        <label className="block text-gray-700">{t('Subject Code')}</label>
+                        <label className="block text-gray-700">{t('Subject code')}</label>
                         <input
                             type="text"
                             name="subjectCode"

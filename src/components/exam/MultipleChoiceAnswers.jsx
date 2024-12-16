@@ -89,7 +89,9 @@ export default function MultipleChoiceAnswers({ questionSelect, listAnswer, setL
                 </button>
             </div>
             <div className="answers-list">
-                {listAnswer?.map((ans, index) => (
+                {listAnswer?.map((ans, index) =>{ 
+                    console.log(ans);
+                    return (
                     <div key={index} className="flex items-center mb-2">
                         <input
                             type="radio"
@@ -105,7 +107,7 @@ export default function MultipleChoiceAnswers({ questionSelect, listAnswer, setL
                                 type="text"
                                 defaultValue={questionSelect ? ans.answerContent : ans}
                                 onChange={(event) => handleEditValueAnswer(event)}
-                            />) : (<span className="mr-2 rounded-lg p-4 pe-12 text-sm shadow-sm">{questionSelect ? ans.answerContent : ans}</span>)
+                            />) : (<span className="mr-2 rounded-lg p-4 pe-12 text-sm shadow-sm">{ans.answerContent ? ans.answerContent : ans}</span>)
                         }
                         {
                             isEditingAnswer === index ? (<button
@@ -122,7 +124,7 @@ export default function MultipleChoiceAnswers({ questionSelect, listAnswer, setL
                                 {t('Edit')}
                             </button>)
                         }
-
+                        {/* 
                         {questionSelect &&
                             <button
                                 type="button"
@@ -131,9 +133,19 @@ export default function MultipleChoiceAnswers({ questionSelect, listAnswer, setL
                             >
                                 {t('Delete')}
                             </button>
-                        }
+                        } */}
+
+
+                        <button
+                            type="button"
+                            onClick={() => handleDeleteAnswer(index)}
+                            className="text-red-500 hover:text-red-700 mx-1"
+                        >
+                            {t('Delete')}
+                        </button>
+
                     </div>
-                ))}
+                )})}
             </div>
 
             {/* <div ref={showAnswer} className="showAnswer flex flex-col"></div> */}

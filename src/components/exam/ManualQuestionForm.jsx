@@ -24,7 +24,7 @@ export default function ManualQuestionForm({ onSave, subjectId ,initialSelectedQ
     };
 
     const fetchQuestions = () => {
-        getAllActiveQuestionByIdClassroomService(subjectId, page, sortType, sortBy, 10, search)
+        getAllActiveQuestionByIdClassroomService(subjectId, page, sortType, sortBy, 5, search)
             .then((res) => {
                 setListAllQuestion(res.data.content);
                 setTotalPages(res.data.totalPages);
@@ -46,7 +46,7 @@ export default function ManualQuestionForm({ onSave, subjectId ,initialSelectedQ
             <div className="mb-4">
                 <input
                     type="text"
-                    placeholder={t('Search Questions')}
+                    placeholder={t('Search questions')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="border p-2 rounded w-full"
@@ -113,7 +113,7 @@ export default function ManualQuestionForm({ onSave, subjectId ,initialSelectedQ
                 onClick={() => onSave(selectedQuestions)}
                 className="bg-green-500 text-white px-4 py-2 rounded mt-4"
             >
-                {t('Save Selected Questions')}
+                {t('Save selected questions')}
             </button>
         </div>
     );

@@ -1,7 +1,7 @@
 
 export default function ModalCustom({ title, onClose, children }) {
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={onClose}>
+        <div className="w-full fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={onClose}>
             <div className="bg-white p-6 rounded-lg w-1/3 relative" onClick={(e) => e.stopPropagation()}>
                 <h2 className="text-xl font-semibold mb-4">{title}</h2>
                 {children}

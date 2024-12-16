@@ -120,9 +120,10 @@ export default function SubjectDetailTeacher() {
             console.log(e)
         })
     }
+    
     const handleAddTest = (body) => {
 
-        newTest.subjectId = subjectId
+        
         addExamByIdSubject(newTest);
     };
     const addExamByIdSubject = (body) => {
@@ -249,7 +250,7 @@ export default function SubjectDetailTeacher() {
                         {isEnded ? t('View active tests') : t('View expired tests')}
                     </button>
 
-                    <button onClick={() => setShowAddModal(true)} className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+                    <button onClick={() => { console.log(subjectId); setShowAddModal(true);newTest.subjectId = subjectId; setNewTest(newTest); } } className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
                         {t('Add')}
                     </button>
                 </div>
@@ -370,7 +371,7 @@ export default function SubjectDetailTeacher() {
                 </div>
             </div>
             {showAddModal && (
-                <ModalCustom title={t('Add New Test')} onClose={() => setShowAddModal(false)}>
+                <ModalCustom title={t('Add exam')} onClose={() => setShowAddModal(false)}>
                     <TestForm
                         test={newTest}
                         onChange={setNewTest}
@@ -386,12 +387,12 @@ export default function SubjectDetailTeacher() {
                         <button
                             className="bg-purple-500 text-white px-4 py-2 rounded w-full mb-4"
                             onClick={() => setAddQuestionModal('random')}>
-                            {t('Add Random Questions from Set')}
+                            {t('Add random by question group')}
                         </button>
                         <button
                             className="bg-teal-500 text-white px-4 py-2 rounded w-full"
                             onClick={() => setAddQuestionModal('manual')}>
-                            {t('Add Manual Questions')}
+                            {t('Add manual')}
                         </button>
                     </div>
                 </ModalCustom>
