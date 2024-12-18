@@ -126,7 +126,7 @@ function ScoreDetail() {
                                                             score?.submittedQuestions?.content?.map((ques, index) => {
                                                                   return <div key={index} className='pt-10'>    
                                                                         {     
-                                                                              <QuizQuestion indexQuestion={index} question={ques} showScore={true} />
+                                                                              <QuizQuestion indexQuestion={index + page * size} question={ques} showScore={true} />
                                                                         }
                                                                         
                                                                         {/* <h3 className="pl-3 mb-4 font-semibold text-black dark:text-white">{index + 1}. {ques.content}</h3>

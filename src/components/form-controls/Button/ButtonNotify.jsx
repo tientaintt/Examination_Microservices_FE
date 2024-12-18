@@ -79,6 +79,7 @@ export default function ButtonNotify() {
         readNotificationService(notification.id).then(
             res=>{
                 console.log(res)
+                fetchNotifications(currentPage);
             }
         ).catch(console.log)
         if(check)

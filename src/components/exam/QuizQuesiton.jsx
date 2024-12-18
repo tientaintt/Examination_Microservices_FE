@@ -1,8 +1,11 @@
+import { Spinner } from 'flowbite-react';
 import React, { useEffect, useState } from 'react';
 import Latex from 'react-latex';
 
 const QuizQuestion = React.memo(({ question, handleChooseAnswer, indexQuestion, showScore, listSubmitAnswer }) => {
     const [answer, setAnswer] = useState('');
+    const [imageUrl, setImageUrl] = useState(question.imageUrl ? question.imageUrl : null);
+
     const render = (content) => {
         return <Latex>{content}</Latex>;
     };
@@ -26,6 +29,18 @@ const QuizQuestion = React.memo(({ question, handleChooseAnswer, indexQuestion, 
             {question.questionType === 'Multiple Choice' && (
                 <div>
                     <h3 className="pl-3 mb-4 font-semibold text-black dark:text-white flex flex-row" dangerouslySetInnerHTML={{ __html: `${indexQuestion + 1}. ${question.content}` }}></h3>
+                    {imageUrl && (
+                        <div className='w-[90%] min-h-[230px] h-[230px] relative flex border rounded-sm border-[#003a47]'>
+                            <div className='h-full flex justify-center items-center px-8  m-auto w-[240px] max-w-[240px]  bg-[#f0f2f4]'>
+                                <img
+                                    src={imageUrl}
+                                    className='p-2 h-full object-scale-down object-center'
+                                    alt=""
+                                />
+
+                            </div>
+                        </div>
+                    )}
                     <ul className="w-[90%] text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         {question.answers.map((choice, index) => (
                             <li key={`${choice.id}-${index}`} className="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">

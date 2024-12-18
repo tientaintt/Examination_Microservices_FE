@@ -25,6 +25,7 @@ export const Header = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [roles, setRoles] = useState(getRoles())
     const userInfor = JSON.parse(getUserInfo());
+    console.log(userInfor);
     let navigate = useNavigate();
     const { language, setLanguage } = useLanguage();
     const { t, i18n } = useTranslation();
@@ -116,7 +117,7 @@ export const Header = () => {
                             <div className='relative mr-3'>
                                 <button onClick={() => { toggleDropdown() }} type="button" className="flex mr-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                                     <span className="sr-only">{t("Open user menu")}</span>
-                                    <img className="w-8 h-8 rounded-full" src={UserIcon} alt="" />
+                                    <img className="w-8 h-8 rounded-full object-contain bg-white " src={userInfor?.imageUrl ? userInfor.imageUrl : UserIcon} alt="" />
                                 </button>
 
                                 {showDropdown && (

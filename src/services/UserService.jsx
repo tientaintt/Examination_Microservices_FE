@@ -21,7 +21,22 @@ const getAllMyTestSpecifyDay='exam/multiple-choice-test/me/specific-day';
 const getMessages='chat/messages/{senderId}/{receiverId}';
 const sendMessage='chat/send';
 const getAllSenderOfReceiver='chat/senders/to/{receiverId}';
-const sendActivityUserUrl='exam/track-event/create'
+const sendActivityUserUrl='exam/track-event/create';
+const updateUserImageUrl='identity/user/update/image';
+export const updateUserImageService = async (formData) => {
+      let accessToken = getAccessToken();
+
+      return await axios.request({
+            method: 'put',
+            url: updateUserImageUrl,
+            data: formData,
+            headers: {
+                  'Content-Type': 'multipart/form-data',
+                  'Authorization': `Bearer ${accessToken}`
+            },
+
+      })
+}
 export const getAllSenderOfReceiverService = async (receiverId,searchText,page,size) => {
       let accessToken = getAccessToken();
       let paramUrl = getAllSenderOfReceiver.replace("{receiverId}",receiverId) ;

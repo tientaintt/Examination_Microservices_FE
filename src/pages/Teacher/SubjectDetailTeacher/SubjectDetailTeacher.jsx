@@ -11,6 +11,7 @@ import { faLeftLong } from '@fortawesome/free-solid-svg-icons';
 import ManualQuestionForm from '../../../components/exam/ManualQuestionForm';
 import RandomQuestionForm from '../../../components/exam/RandomQuestionForm';
 import TestForm from '../../../components/exam/TestForm';
+import { isAfter } from 'date-fns';
 
 const TEST_NAME = 'test_name';
 const START_DATE = 'start_date';
@@ -28,14 +29,14 @@ export default function SubjectDetailTeacher() {
     const [sortBy, setSortBy] = useState(TEST_NAME);
     const [searchText, setSearchText] = useState('');
     const [size, setSize] = useState(4);
-    
+
 
     const [isEnded, setIsEnded] = useState(false); // Filter expired or active tests
 
 
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [selectedTest, setSelectedTest] = useState(null); 
+    const [selectedTest, setSelectedTest] = useState(null);
 
     const [showAddModal, setShowAddModal] = useState(false);
     const [newTest, setNewTest] = useState({
@@ -83,10 +84,10 @@ export default function SubjectDetailTeacher() {
     useEffect(() => {
         getSubjectDetail();
 
-    }, [subjectId,  sortType, isEnded]);
+    }, [subjectId, sortType, isEnded]);
     useEffect(() => {
         fetchTests();
-    }, [searchText,sortBy,page,sortType,isEnded])
+    }, [searchText, sortBy, page, sortType, isEnded])
     const getSubjectDetail = () => {
         getSubjectByIdService(subjectId)
             .then((res) => setSubject(res.data))
@@ -120,10 +121,10 @@ export default function SubjectDetailTeacher() {
             console.log(e)
         })
     }
-    
+
     const handleAddTest = (body) => {
 
-        
+
         addExamByIdSubject(newTest);
     };
     const addExamByIdSubject = (body) => {
@@ -149,7 +150,7 @@ export default function SubjectDetailTeacher() {
                 position: toast.POSITION.TOP_RIGHT,
             });
         })
-       
+
     };
 
     const handleDeleteTest = () => {
@@ -250,7 +251,7 @@ export default function SubjectDetailTeacher() {
                         {isEnded ? t('View active tests') : t('View expired tests')}
                     </button>
 
-                    <button onClick={() => { console.log(subjectId); setShowAddModal(true);newTest.subjectId = subjectId; setNewTest(newTest); } } className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+                    <button onClick={() => { console.log(subjectId); setShowAddModal(true); newTest.subjectId = subjectId; setNewTest(newTest); }} className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
                         {t('Add')}
                     </button>
                 </div>
@@ -273,13 +274,24 @@ export default function SubjectDetailTeacher() {
                                     </div>
                                 </div>
                                 <div>
-                                    <button onClick={() => { setSelectedTest(test); setShowEditModal(true); }} className="bg-yellow-500 text-white px-2 py-1 rounded mr-2">
-                                        {t('Edit')}
-                                    </button>
-                                    <button onClick={() => { setSelectedTest(test); setShowDeleteModal(true); }} className="bg-red-500 text-white px-2 py-1 rounded mr-2">
-                                        {t('Delete')}
-                                    </button>
-                                    <button onClick={() => { navigate(Path.TEACHER_MANAGER_SCORE.replace(':idExam?',test.id)) }} className="bg-blue-500 text-white px-2 py-1 rounded">
+                                    {
+
+                                        !isAfter(new Date(), new Date(test.startDate)) && (<>
+                                            <button
+                                                onClick={() => { setSelectedTest(test); setShowEditModal(true); }}
+                                                className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                                            >
+                                                {t('Edit')}
+                                            </button>
+                                            <button
+                                                onClick={() => { setSelectedTest(test); setShowDeleteModal(true); }}
+                                                className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+                                            >
+                                                {t('Delete')}
+                                            </button>
+                                        </>)
+                                    }
+                                    <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => { navigate(Path.TEACHER_MANAGER_SCORE.replace(':idExam?', test.id)) }} >
                                         {t('Show student score has joined exam')}
                                     </button>
                                 </div>
@@ -327,7 +339,7 @@ export default function SubjectDetailTeacher() {
                 <select
                     value={studentSortType}
                     onChange={(e) => setStudentSortType(e.target.value)}
-                    className="border p-2 rounded bg-white mr-4" 
+                    className="border p-2 rounded bg-white mr-4"
                 >
                     <option value="asc">{t('Ascending')}</option>
                     <option value="desc">{t('Descending')}</option>
@@ -397,7 +409,7 @@ export default function SubjectDetailTeacher() {
                     </div>
                 </ModalCustom>
             )}
- {addQuestionModal === 'random' && (
+            {addQuestionModal === 'random' && (
                 <ModalCustom title={t('Add random questions')} onClose={() => setAddQuestionModal(null)}>
                     <RandomQuestionForm
                         onSave={(questions) => {
@@ -407,7 +419,7 @@ export default function SubjectDetailTeacher() {
                             setAddQuestionModal(null);
                         }}
                         subjectId={newTest.subjectId}
-                        
+
                         initialSelectedQuestions={newTest?.randomQuestions}
                     />
                 </ModalCustom>

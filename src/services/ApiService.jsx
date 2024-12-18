@@ -57,6 +57,36 @@ const getMCTestOfSubjectManagerAroundTwoWeekUrl='exam/multiple-choice-test/two-w
 const getAllExamManageUrl = 'exam/multiple-choice-test/manage';
 const getAllMyNotificationUrl='notify/my'
 const exportListStudentVerifiedUrl='identity/student/export/verified'
+const deleteFileByPathUrl='file/delete';
+const uploadFileUrl='/file/upload';
+
+export const uploadFileService = async (file,params) => {
+      let accessToken = getAccessToken();
+      return await axios.request({
+            method: 'post',
+            params:params,
+            data:file,
+            url: uploadFileUrl,
+            headers: {
+                  'Content-Type': 'multipart/form-data',
+                  'Authorization': `Bearer ${accessToken}`
+            },
+
+      })
+}
+
+export const deleteFileByPathService = async (path_file) => {
+      let accessToken = getAccessToken();
+      return await axios.request({
+            method: 'delete',
+            url: deleteFileByPathUrl+"?path_file="+path_file,
+            headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}`
+            },
+
+      })
+}
 export const readNotificationService = async (id) => {
       let accessToken = getAccessToken();
       return await axios.request({
@@ -1277,8 +1307,7 @@ export const removeCredential = () => {
 export const saveCredential = (userInfor) => {
 
       localStorage.setItem('userInfor', JSON.stringify(userInfor));
-      // console.log(userInfor)
-      // Lưu token riêng vào local storage
+  
       saveToken(userInfor.accessToken, userInfor.refreshToken, JSON.stringify(userInfor.roles));
 }
 

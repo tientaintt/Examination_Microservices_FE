@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Button from '../../../components/form-controls/Button/Button';
-import { Modal, Toast } from 'flowbite-react';
+import { Modal, Spinner, Toast } from 'flowbite-react';
 import Toggle from '../../../components/form-controls/Toggle/Toggle';
 import InputField from '../../../components/form-controls/InputField/InputField';
 import PaginationNav from '../../../components/pagination/PaginationNav';
@@ -10,12 +10,13 @@ import {
     MenuList,
     MenuItem,
     Button as ButtonMenu,
+    Typography,
 
 } from "@material-tailwind/react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faQuestionCircle, faEdit, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faQuestionCircle, faEdit, faCheckCircle, faXmark } from '@fortawesome/free-solid-svg-icons';
 
-import { exportListQuestionOfQuestionGroupService, activeQuestionService, addQuestionByQuestionGroupService, deleteQuestionService, getAllActiveQuestionByIdClassroomService, getAllActiveQuestionByQuestionGrIDService, getAllInActiveQuestionByIdClassroomService, getAllInActiveQuestionByQuestionGrIDService, getQuestionByIdService, removeCredential, updateQuestionService, importListQuestionIntoQuestionGroupService } from '../../../services/ApiService';
+import { exportListQuestionOfQuestionGroupService, activeQuestionService, addQuestionByQuestionGroupService, deleteQuestionService, getAllActiveQuestionByIdClassroomService, getAllActiveQuestionByQuestionGrIDService, getAllInActiveQuestionByIdClassroomService, getAllInActiveQuestionByQuestionGrIDService, getQuestionByIdService, removeCredential, updateQuestionService, importListQuestionIntoQuestionGroupService, deleteFileByPathService, uploadFileByPathService, uploadFileService } from '../../../services/ApiService';
 import Path from '../../../utils/Path';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
@@ -53,6 +54,7 @@ export const Questionmanager = (props) => {
     const [file, setFile] = useState();
     const [isChooseTrue, setChooseTrue] = useState(false);
     const [selectedOption, setSelectedOption] = useState('');
+    const [questionId, setQuestionId] = useState(null);
     const [questionSelect, setQuestionSelect] = useState({
         id: ''
         , content: ''
@@ -69,6 +71,80 @@ export const Questionmanager = (props) => {
     const [isAllCheckBox, setIsAllCheckBox] = useState(true);
     const [isChooseActive, setIsChooseActive] = useState(false);
     const [showOptions, setShowOptions] = useState(true);
+
+    const [imageURL, setImageUrl] = useState(null);
+    const [fileInputRef, setFileInputRef] = useState(null);
+    const [img, setImg] = useState(null);
+    const [imgLoading, setImgLoading] = useState(false);
+    const [showAllField, setShowAllField] = useState(false)
+    const handleRemoveImg = () => {
+        setImg(null);
+        if (fileInputRef && fileInputRef.value) {
+            fileInputRef.value = '';
+        }
+    };
+    const handleImgChange = (e) => {
+        setImgLoading(true);
+        const file = e.target.files[0];
+        if (file) {
+            if (file.type.includes("image")) {
+                setImg(file);
+            } else {
+                toast.error("Image not accept!", {
+                    position: toast.POSITION.TOP_RIGHT,
+                });
+                handleRemoveImg();
+            }
+        }
+        setImgLoading(false);
+    };
+    const deleteImage = async () => {
+        if (imageURL) {
+            try {
+                setImgLoading(true);
+                await deleteFileByPathService(imageURL);
+
+                setImgLoading(false);
+            } catch (e) {
+                console.error('Upload failed:', e);
+                setImgLoading(false);
+            }
+        }
+    };
+    const uploadImage = async () => {
+        try {
+            setImgLoading(true);
+            const formData = new FormData();
+            formData.append('file', img);
+            const params = {
+                parentId: questionId,
+                parentType: "QUESTION_IMAGE"
+            };
+            uploadFileService(formData, params);
+            setImgLoading(false);
+        } catch (e) {
+            console.error('Upload failed:', e);
+            setImgLoading(false);
+            toast.error(`Update fail !`, {
+                position: toast.POSITION.TOP_RIGHT,
+            });
+        }
+    };
+    const handleUploadImg = async () => {
+
+        if (img) {
+            setImgLoading(true);
+
+            await deleteImage();
+            await uploadImage();
+
+            setImgLoading(false);
+
+        } else {
+            console.warn('No image selected for upload.');
+        }
+
+    };
     const handleConfirmSelection = () => {
         setShowOptions(false);
     };
@@ -245,11 +321,14 @@ export const Questionmanager = (props) => {
             setIsQuestionGroupOpen(false);
         if (isChooseActive)
             setIsChooseActive(false);
+        if (showAllField)
+            setShowAllField(false)
         setShowOptions(true)
         setQuestionType('')
         setChooseTrue(false)
         setSelectedOption('');
         setFile(undefined);
+        setImg(undefined);
         // setAnswer('');
 
 
@@ -293,44 +372,37 @@ export const Questionmanager = (props) => {
         console.log(selectedOption);
         const newBody = {
             content: contentQuestion,
-            answers: listAnswer,
+            answers: [],
             id: questionSelect.id,
             questionGroupId: questionSelect.questionGroupId,
             questionType: questionSelect.questionType
         }
 
 
-        if (questionSelect.questionType === 'Multiple Choice') {
-            newBody.answers.forEach((item) => {
-                console.log(selectedOption);
-                if (item.idAnswerQuestion == selectedOption) {
-                    console.log("Start change option ", selectedOption, item.idAnswerQuestion)
-                    item.isCorrect = true;
+        if (questionType === 'Multiple Choice') {
+            listAnswer.forEach((item) => {
+                newBody.answers.push({
+                    answerContent: item,
+                    isCorrect: item === selectedOption
+                });
+            });
+        }
 
-                }
-                else {
-                    item.isCorrect = false;
 
-                }
-            })
-        } else if (questionSelect.questionType === 'True/False') {
-            newBody.answers.forEach((item) => {
-                if (item.answerContent == selectedOption) {
+        if (questionType === 'True/False') {
 
-                    item.isCorrect = true;
+            const trueFalseAnswers = [
+                { answerContent: 'True', isCorrect: selectedOption === 'True' },
+                { answerContent: 'False', isCorrect: selectedOption === 'False' },
+            ];
+            newBody.answers = trueFalseAnswers;
+        }
 
-                }
-                else {
-                    item.isCorrect = false;
-
-                }
-            })
-            // newBody.answers = [
-            //     { answerContent: 'True', isCorrect: selectedOption === 'True', idAnswerQuestion: 1 },
-            //     { answerContent: 'False', isCorrect: selectedOption === 'False', idAnswerQuestion: 2 },
-            // ];
-        } else if (questionSelect.questionType === 'Fill in the blank') {
-
+        if (questionType === 'Fill in the blank') {
+            newBody.answers.push({
+                answerContent: listAnswer[0],
+                isCorrect: true
+            });
         }
         console.log(newBody)
         updateQuestionService(newBody).then((res) => {
@@ -361,13 +433,33 @@ export const Questionmanager = (props) => {
 
     };
 
+    const handleShowAllField = () => {
+        setShowAllField(true);
+        const newBody = {
+            content: contentQuestion,
+            answers: [],
+
+            questionGroupId: props.id,
+            questionType: questionType
+        }
+        addQuestionByQuestionGroupService(newBody).then((res) => {
+            getAllQuestion();
+            setQuestionSelect(res.data);
+            setQuestionId(res.data.questionId);
+            console.log(res)
+        }).catch((error) => {
+            toast.error(t('Add question fail !'), { position: toast.POSITION.TOP_RIGHT });
+        })
+    }
+
+
     const submitForm = (body) => {
         console.log('submitForm')
         handleClose();
         const newBody = {
             content: contentQuestion,
             answers: [],
-
+            id: questionSelect.id,
             questionGroupId: body.questionGroupId,
             questionType: questionType
         }
@@ -408,12 +500,22 @@ export const Questionmanager = (props) => {
             }
             console.log(listAnswer[0])
             console.log(newBody);
-            addQuestionByQuestionGroupService(newBody).then((res) => {
-                getAllQuestion();
-                toast.success(t('Add question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
-            }).catch((error) => {
-                toast.error(t('Add question fail !'), { position: toast.POSITION.TOP_RIGHT });
-            })
+            // addQuestionByQuestionGroupService(newBody).then((res) => {
+            //     getAllQuestion();
+            //     toast.success(t('Add question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
+            // }).catch((error) => {
+            //     toast.error(t('Add question fail !'), { position: toast.POSITION.TOP_RIGHT });
+            // })
+            handleUploadImg().then(() => {
+                updateQuestionService(newBody).then((res) => {
+                    getAllQuestion();
+                    toast.success(t('Add question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
+                    handleClose();
+                }).catch((error) => {
+                    toast.error(t('Add question fail !'), { position: toast.POSITION.TOP_RIGHT });
+                })
+            }).catch(console.log)
+
         }
 
         if (isDelete)
@@ -431,7 +533,8 @@ export const Questionmanager = (props) => {
                 toast.error(t('Active question fail !'), { position: toast.POSITION.TOP_RIGHT });
             })
         if (isEdit) {
-            handleSubmitEdit();
+            handleUploadImg().then(()=> handleSubmitEdit()).catch(console.log);
+            
         }
         setActiveIndex(0);
 
@@ -570,9 +673,14 @@ export const Questionmanager = (props) => {
         setIsEdit(true);
         getQuestionByIdService(item.id).then((res) => {
             console.log("getQuestionByIdService ", res.data)
-            setQuestionSelect(res.data);
+            setQuestionSelect(res.data)
             setQuestionType(res.data.questionType)
-            setListAnswer(res.data.answers)
+            setQuestionId(res.data.questionId)
+            setImageUrl(res.data.imageUrl)
+            
+            setListAnswer(res.data.answers.map(answer=>{
+                return answer.answerContent;
+            }))
         }).catch(e => {
             toast.error(t('Get question {} fail !').replace('{}', `${item.id}`), {
                 position: toast.POSITION.TOP_RIGHT,
@@ -605,7 +713,7 @@ export const Questionmanager = (props) => {
         });
     }
 
-    const getAllActiveQuestionByQuestionGrID = async (page, sortType, column, size=6, search) => {
+    const getAllActiveQuestionByQuestionGrID = async (page, sortType, column, size = 6, search) => {
         getAllActiveQuestionByQuestionGrIDService(props.id, page, sortType, column, size, search).then((res) => {
             setListAllQuestion(res.data.content);
             setIsLast(res.data.last);
@@ -929,6 +1037,45 @@ export const Questionmanager = (props) => {
                                                 //     })
                                                 questionSelect && (
                                                     <>
+                                                        <div className='flex flex-col'>
+                                                            <div className='my-6 max-w-[40rem]'>
+                                                                <div className='w-full min-h-[230px] h-[230px] relative flex border rounded-sm border-[#003a47]'>
+                                                                    <div className='h-full flex justify-center items-center px-8  m-auto w-[240px] max-w-[240px]  bg-[#f0f2f4]'>
+                                                                        {imgLoading ? (
+                                                                            <Spinner className='w-[60px] object-cover object-center h-auto' color="teal" />
+                                                                        ) : (
+                                                                            <img
+                                                                                src={img ? URL.createObjectURL(img) : imageURL}
+                                                                                className='p-2 h-full object-scale-down object-center'
+                                                                                alt=""
+                                                                            />
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div className='w-full flex justify-between items-center mt-6 relative h-[40px] border rounded-sm border-[#003a47]'>
+                                                                    <div className='mx-3 w-full h-full flex items-center '>
+                                                                        <Typography className='cursor-default'>
+                                                                            {img?.name || t("No file selected")}
+                                                                        </Typography>
+                                                                        {img && (
+                                                                            <span onClick={handleRemoveImg} className='cursor-pointer h-full flex items-center justify-between px-3' title='Hủy' >
+                                                                                <FontAwesomeIcon className='' icon={faXmark} />
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <input
+                                                                        type="file"
+                                                                        accept="image/*"
+                                                                        style={{ display: 'none' }}
+                                                                        onChange={handleImgChange}
+                                                                        ref={(fileInput) => (setFileInputRef(fileInput))}
+                                                                    />
+                                                                    <Button handleOnClick={() => fileInputRef && fileInputRef.click()} className="bg-blue-500 hover:bg-blue-700 !rounded-none !w-[100px] h-full ring-gray-300 hover:opacity-80 text-white" > {t("Select")}</Button>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* <Button disable={!img} handleOnClick={() => handleUploadImg()} className="bg-[#003a47] w-[100px] h-[40px] ring-gray-300 hover:opacity-80 text-white max-w-[40rem]" rounded >{t('Save')}</Button> */}
+                                                        </div>
                                                         <form onSubmit={form.handleSubmit(submitForm)} className="relative mb-0 space-y-4 rounded-lg pt-4 px-4 ">
                                                             {questionType === 'Multiple Choice' && (<>
 
@@ -973,7 +1120,7 @@ export const Questionmanager = (props) => {
                 }
                 {isAdd && (
                     <>
-                        <Modal className="bg-opacity-60 z-[105] " show={true} theme={{ 'content': { 'base': 'w-1/2 m-10' } }} popup onClose={() => handleClose()} >
+                        <Modal className="bg-opacity-60 z-[105]" show={true} theme={{ 'content': { 'base': 'w-1/2' } }} popup onClose={() => handleClose()} >
                             <Modal.Body>
 
                                 {showOptions && (
@@ -1028,72 +1175,86 @@ export const Questionmanager = (props) => {
                                     </div>
                                 )}
                                 {!showOptions &&
-                                    // <>
-                                    //     {questionType === 'Multiple Choice' &&
-
-                                    //         <form onSubmit={form.handleSubmit(submitForm)}
-                                    //             className="relative mb-0 space-y-4 rounded-lg pt-4 px-4 shadow-lg "
-                                    //         >
-                                    //             <p className="text-center text-lg font-medium">{t('Add question')}</p>
-
-
-                                    //             <div>
-                                    //                 <label htmlFor={CONTENT_QUESTION} className="block pb-1 text-sm font-medium text-gray-700">{t('Question content')}</label>
-                                    //                 <textarea
-                                    //                     rows="4"
-                                    //                     className='mt-0 border-2 resize-none outline-none border-gray-500/75 w-full rounded-lg p-4  text-sm ' onChange={(event) => { handleInputContent(event) }} defaultValue={''}></textarea>
-                                    //             </div>
-                                    //             <div>
-                                    //                 <label className='block pb-1 text-sm font-medium text-gray-700'>
-                                    //                     {t('Answer')}
-                                    //                 </label>
-                                    //                 <div className={clsx('relative flex justify-center ')}>
-
-                                    //                     <input value={answer} onChange={(event) => { handleInputAnswer(event) }} type="text" className={clsx('text-opacity-50 border-2 border-gray-500/75  rounded-lg p-4 pe-12 text-sm shadow-sm w-full h-full', clickCount <= 4 ? '' : 'pointer-events-none opacity-50')} placeholder={t('Enter answer ')}>
-
-                                    //                     </input>
-                                    //                     <button onClick={(event) => { handleAddAnswer(event) }} className={clsx('hover:bg-black hover:text-white font-bold border-2 m-1 px-5 py-3 border-black rounded-lg bg-white text-sm', clickCount <= 4 ? '' : 'pointer-events-none opacity-50')} >{t('Add')}</button>
-                                    //                 </div>
-                                    //             </div>
-                                    //             <div ref={showAnswer} className='showAnswer flex flex-col' >
-                                    //             </div>
-                                    //             <Button className={clsx((clickCount <= 4 || !isChooseTrue) ? 'pointer-events-none opacity-50 bg-blue-800' : "bg-blue-800")} type='submit'>{t('Submit')}</Button>
-                                    //             <div className='flex justify-center'>
-                                    //                 <Modal.Header />
-                                    //             </div>
-                                    //         </form>
-                                    //     }
-
-                                    // </>
                                     <>
                                         <p className="text-center text-lg font-medium m-2">{t('Add question')}</p>
                                         <InputField name={QUESTION_GROUP_ID} disabled form={form} defaultValue={props.id} />
-                                        <QuestionContentInput onChange={handleInputContent}  />
-                                        <form onSubmit={form.handleSubmit(submitForm)} className="relative mb-0 space-y-4 rounded-lg pt-4 px-4 ">
-                                            {questionType === 'Multiple Choice' && (
+                                        <QuestionContentInput onChange={handleInputContent} />
+                                        {showAllField ? (
+                                            <>
+                                                <div className='flex flex-col'>
+                                                    <div className='my-6 max-w-[40rem]'>
+                                                        <div className='w-full min-h-[230px] h-[230px] relative flex border rounded-sm border-[#003a47]'>
+                                                            <div className='h-full flex justify-center items-center px-8  m-auto w-[240px] max-w-[240px]  bg-[#f0f2f4]'>
+                                                                {imgLoading ? (
+                                                                    <Spinner className='w-[60px] object-cover object-center h-auto' color="teal" />
+                                                                ) : (
+                                                                    <img
+                                                                        src={img ? URL.createObjectURL(img) : imageURL}
+                                                                        className='p-2 h-full object-scale-down object-center'
+                                                                        alt=""
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className='w-full flex justify-between items-center mt-6 relative h-[40px] border rounded-sm border-[#003a47]'>
+                                                            <div className='mx-3 w-full h-full flex items-center '>
+                                                                <Typography className='cursor-default'>
+                                                                    {img?.name || t("No file selected")}
+                                                                </Typography>
+                                                                {img && (
+                                                                    <span onClick={handleRemoveImg} className='cursor-pointer h-full flex items-center justify-between px-3' title='Hủy' >
+                                                                        <FontAwesomeIcon className='' icon={faXmark} />
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                style={{ display: 'none' }}
+                                                                onChange={handleImgChange}
+                                                                ref={(fileInput) => (setFileInputRef(fileInput))}
+                                                            />
+                                                            <Button handleOnClick={() => fileInputRef && fileInputRef.click()} className="bg-blue-500 hover:bg-blue-700 !rounded-none !w-[100px] h-full ring-gray-300 hover:opacity-80 text-white" > {t("Select")}</Button>
+                                                        </div>
+                                                    </div>
 
-                                                <MultipleChoiceAnswers
-                                                    handleOptionChange={handleOptionChange}
-                                                    selectedOption={selectedOption}
-                                                    setListAnswer={setListAnswer}
-                                                    listAnswer={listAnswer}
-                                                    isChooseTrue={isChooseTrue}
-                                                />
+                                                    {/* <Button disable={!img} handleOnClick={() => handleUploadImg()} className="bg-[#003a47] w-[100px] h-[40px] ring-gray-300 hover:opacity-80 text-white max-w-[40rem]" rounded >{t('Save')}</Button> */}
+                                                </div>
+                                                <form onSubmit={form.handleSubmit(submitForm)} className="relative mb-0 space-y-4 rounded-lg pt-4 px-4 ">
+                                                    {questionType === 'Multiple Choice' && (
 
-                                            )}
+                                                        <MultipleChoiceAnswers
+                                                            handleOptionChange={handleOptionChange}
+                                                            selectedOption={selectedOption}
+                                                            setListAnswer={setListAnswer}
+                                                            listAnswer={listAnswer}
+                                                            isChooseTrue={isChooseTrue}
+                                                        />
 
-                                            {questionType === 'True/False' && (
-                                                <TrueFalseQuestion selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
-                                            )}
+                                                    )}
 
-                                            {questionType === 'Fill in the blank' && (
-                                                <ShortAnswerQuestion listAnswer={listAnswer} setListAnswer={setListAnswer} />
-                                            )}
+                                                    {questionType === 'True/False' && (
+                                                        <TrueFalseQuestion selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
+                                                    )}
 
-                                            {/* {questionType === 'Essay' && (
-                                            <EssayQuestion handleInputContent={handleInputContent} />
-                                        )} */}
-                                        </form>
+                                                    {questionType === 'Fill in the blank' && (
+                                                        <ShortAnswerQuestion listAnswer={listAnswer} setListAnswer={setListAnswer} />
+                                                    )}
+
+                                                    {/* {questionType === 'Essay' && (
+                                                    <EssayQuestion handleInputContent={handleInputContent} />
+                                                )} */}
+                                                </form>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className='w-full flex justify-end'>
+                                                    <button onClick={() => { handleShowAllField() }} className="bg-blue-500 hover:bg-blue-700 text-white font-bold mt-2 py-2 px-4 rounded">
+                                                        {t('Next')}
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
                                         <div className='flex justify-center'>
                                             <Modal.Header />
                                         </div>

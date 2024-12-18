@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { deleteQuestionService, addQuestionByQuestionGroupService, updateQuestionService, getAllActiveQuestionByQuestionGrIDService, getAllInActiveQuestionByQuestionGrIDService, getQuestionByIdService, activeQuestionService, exportListQuestionOfQuestionGroupService, importListQuestionIntoQuestionGroupService } from '../../../services/ApiService';
+import { deleteQuestionService, addQuestionByQuestionGroupService, updateQuestionService, getAllActiveQuestionByQuestionGrIDService, getAllInActiveQuestionByQuestionGrIDService, getQuestionByIdService, activeQuestionService, exportListQuestionOfQuestionGroupService, importListQuestionIntoQuestionGroupService, deleteFileByPathService, uploadFileService } from '../../../services/ApiService';
 import { toast } from 'react-toastify';
 
 import Button from '../../../components/form-controls/Button/Button';
@@ -15,7 +15,8 @@ import QuestionContentInput from '../../../components/exam/QuestionContentInput'
 import InputField from '../../../components/form-controls/InputField/InputField';
 import { Modal } from 'flowbite-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLeftLong } from '@fortawesome/free-solid-svg-icons';
+import { faLeftLong, faTimes, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { Spinner, Typography } from '@material-tailwind/react';
 const CONTENT_QUESTION = 'content';
 const QUESTION_GROUP_ID = 'questionGroupId';
 const QUESTION_TYPE = 'questionType';
@@ -52,7 +53,7 @@ export default function QuestionManagementTeacher() {
     const [newQuestion, setNewQuestion] = useState({
         content: '',
         difficulty: '',
-        questionType: 'Multiple Choice', 
+        questionType: 'Multiple Choice',
         answers: []
     });
     const [questionSelect, setQuestionSelect] = useState({
@@ -63,7 +64,7 @@ export default function QuestionManagementTeacher() {
     });
     const sortOptions = [
         { value: 'content', label: t('Question content') },
-        
+
     ];
 
     const questionTypeOptions = [
@@ -71,9 +72,112 @@ export default function QuestionManagementTeacher() {
         { value: 'True/False', label: t('True/False') },
         { value: 'Fill in the blank', label: t('Fill in the blank') }
     ];
+    const [questionId, setQuestionId] = useState(null);
+    const [imageURL, setImageUrl] = useState(null);
+    const [fileInputRef, setFileInputRef] = useState(null);
+    const [img, setImg] = useState(null);
+    const [imgLoading, setImgLoading] = useState(false);
+    const [showAllField, setShowAllField] = useState(false);
+    const [audio, setAudio] = useState(null);
+    const audioInputRef = useRef(null);
 
+    const handleAudioChange = (e) => {
+        const file = e.target.files[0];
+        setAudio(file);
+    };
+
+    const handleRemoveAudio = () => {
+        setAudio(null);
+        audioInputRef.current.value = null;
+    };
+    const handleRemoveImg = () => {
+        setImg(null);
+        if (fileInputRef && fileInputRef.value) {
+            fileInputRef.value = '';
+        }
+    };
+    const handleImgChange = (e) => {
+        setImgLoading(true);
+        const file = e.target.files[0];
+        if (file) {
+            if (file.type.includes("image")) {
+                setImg(file);
+            } else {
+                toast.error("Image not accept!", {
+                    position: toast.POSITION.TOP_RIGHT,
+                });
+                handleRemoveImg();
+            }
+        }
+        setImgLoading(false);
+    };
+    const deleteImage = async () => {
+        if (imageURL) {
+            try {
+                setImgLoading(true);
+                await deleteFileByPathService(imageURL);
+
+                setImgLoading(false);
+            } catch (e) {
+                console.error('Upload failed:', e);
+                setImgLoading(false);
+            }
+        }
+    };
+    const uploadImage = async () => {
+        try {
+            setImgLoading(true);
+            const formData = new FormData();
+            formData.append('file', img);
+            const params = {
+                parentId: questionId,
+                parentType: "QUESTION_IMAGE"
+            };
+            uploadFileService(formData, params);
+            setImgLoading(false);
+        } catch (e) {
+            console.error('Upload failed:', e);
+            setImgLoading(false);
+            toast.error(`Update fail !`, {
+                position: toast.POSITION.TOP_RIGHT,
+            });
+        }
+    };
+    const handleUploadImg = async () => {
+
+        if (img) {
+            setImgLoading(true);
+
+            await deleteImage();
+            await uploadImage();
+
+            setImgLoading(false);
+
+        } else {
+            console.warn('No image selected for upload.');
+        }
+
+    };
+    const handleShowAllField = () => {
+        setShowAllField(true);
+        const newBody = {
+            content: contentQuestion,
+            answers: [],
+
+            questionGroupId: questionGroupId,
+            questionType: questionType
+        }
+        addQuestionByQuestionGroupService(newBody).then((res) => {
+            getAllQuestion();
+            setQuestionSelect(res.data);
+            setQuestionId(res.data.questionId);
+            console.log(res)
+        }).catch((error) => {
+            toast.error(t('Add question fail !'), { position: toast.POSITION.TOP_RIGHT });
+        })
+    }
     const getAllInActiveQuestionByQuestionGrID = async (page, sortType, column, size, search) => {
-       
+
         getAllInActiveQuestionByQuestionGrIDService(questionGroupId, page, sortType, column, size, search).then((res) => {
             console.log(res);
             setQuestions(res.data.content);
@@ -90,7 +194,7 @@ export default function QuestionManagementTeacher() {
     }
 
     const getAllActiveQuestionByQuestionGrID = async (page, sortType, column, size, search) => {
-       
+
         getAllActiveQuestionByQuestionGrIDService(questionGroupId, page, sortType, column, size, search).then((res) => {
             console.log(res)
             setQuestions(res.data.content);
@@ -103,15 +207,15 @@ export default function QuestionManagementTeacher() {
     };
 
     const getAllQuestion = (page, sortType, column, size, search) => {
-      
+
         if (isModeActive)
-            getAllActiveQuestionByQuestionGrID(page, sortType, column, size , search);
+            getAllActiveQuestionByQuestionGrID(page, sortType, column, size, search);
         else
-            getAllInActiveQuestionByQuestionGrID(page, sortType, column, size , search);
+            getAllInActiveQuestionByQuestionGrID(page, sortType, column, size, search);
     };
 
     useEffect(() => {
-        getAllQuestion(page, sortType, sortBy,6, searchText);
+        getAllQuestion(page, sortType, sortBy, 6, searchText);
     }, [questionGroupId, page, sortBy, sortType, searchText, isModeActive]);
 
     const handleSearch = (e) => {
@@ -136,7 +240,7 @@ export default function QuestionManagementTeacher() {
         const newBody = {
             content: contentQuestion,
             answers: [],
-
+            id: questionSelect.id,
             questionGroupId: questionGroupId,
             questionType: questionType
         }
@@ -172,30 +276,26 @@ export default function QuestionManagementTeacher() {
             }
             console.log(listAnswer[0])
             console.log(newBody);
-            addQuestionByQuestionGroupService(newBody).then((res) => {
-                getAllQuestion(page, sortType, sortBy,6, searchText);
-                handleClose();
-                toast.success(t('Add question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
-            }).catch((error) => {
-                toast.error(t('Add question fail !'), { position: toast.POSITION.TOP_RIGHT });
-            })
+            handleUploadImg().then(() => {
+                updateQuestionService(newBody).then((res) => {
+                    getAllQuestion(page, sortType, sortBy, 6, searchText);
+                    toast.success(t('Add question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
+                    handleClose();
+                }).catch((error) => {
+                    toast.error(t('Add question fail !'), { position: toast.POSITION.TOP_RIGHT });
+                })
+            }).catch(console.log)
         }
 
         if (showDeleteModal)
             deleteQuestionService(body.id).then((res) => {
-                getAllQuestion(page, sortType, sortBy,6, searchText);
+                getAllQuestion(page, sortType, sortBy, 6, searchText);
                 handleClose();
                 toast.success(t('Delete question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
             }).catch((error) => {
                 toast.error(t('Delete question fail !'), { position: toast.POSITION.TOP_RIGHT });
             })
-        // if (isChooseActive)
-        //     activeQuestionService(body.id).then((res) => {
-        //         getAllQuestion();
-        //         toast.success(t('Active question successfuly !'), { position: toast.POSITION.TOP_RIGHT });
-        //     }).catch((error) => {
-        //         toast.error(t('Active question fail !'), { position: toast.POSITION.TOP_RIGHT });
-        //     })
+
         if (showEditModal) {
             handleSubmitEdit();
         }
@@ -204,7 +304,7 @@ export default function QuestionManagementTeacher() {
     }
     const handleClickActive = (id) => {
         activeQuestionService(id).then((res) => {
-            getAllQuestion(page, sortType, sortBy,6, searchText);
+            getAllQuestion(page, sortType, sortBy, 6, searchText);
             handleClose();
         }).catch((error) => {
             toast.error(t('Active subject fail !'), {
@@ -226,7 +326,9 @@ export default function QuestionManagementTeacher() {
         setSelectedOption('');
 
         setQuestionSelect({});
-
+        setImageUrl(null);
+        setShowAllField(null);
+        setImg(null);
         setListAnswer([]);
 
     }
@@ -254,7 +356,7 @@ export default function QuestionManagementTeacher() {
                 const url = window.URL.createObjectURL(new Blob([res]));
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', `Question.xlsx`); 
+                link.setAttribute('download', `Question.xlsx`);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
@@ -271,50 +373,44 @@ export default function QuestionManagementTeacher() {
         console.log(selectedOption);
         const newBody = {
             content: contentQuestion,
-            answers: listAnswer,
+            answers: [],
             id: questionSelect.id,
             questionGroupId: questionSelect.questionGroupId,
             questionType: questionSelect.questionType
         }
 
 
-        if (questionSelect.questionType === 'Multiple Choice') {
-            newBody.answers.forEach((item) => {
-                console.log(selectedOption);
-                if (item.idAnswerQuestion == selectedOption) {
-                    console.log("Start change option ", selectedOption, item.idAnswerQuestion)
-                    item.isCorrect = true;
+        if (questionType === 'Multiple Choice') {
+            listAnswer.forEach((item) => {
+                newBody.answers.push({
+                    answerContent: item,
+                    isCorrect: item === selectedOption
+                });
+            });
+        }
 
-                }
-                else {
-                    item.isCorrect = false;
 
-                }
-            })
-        } else if (questionSelect.questionType === 'True/False') {
-            newBody.answers.forEach((item) => {
-                if (item.answerContent == selectedOption) {
+        if (questionType === 'True/False') {
 
-                    item.isCorrect = true;
+            const trueFalseAnswers = [
+                { answerContent: 'True', isCorrect: selectedOption === 'True' },
+                { answerContent: 'False', isCorrect: selectedOption === 'False' },
+            ];
+            newBody.answers = trueFalseAnswers;
+        }
 
-                }
-                else {
-                    item.isCorrect = false;
-
-                }
-            })
-
-        } else if (questionSelect.questionType === 'Fill in the blank') {
-
+        if (questionType === 'Fill in the blank') {
+            newBody.answers.push({
+                answerContent: listAnswer[0],
+                isCorrect: true
+            });
         }
         console.log(newBody)
         updateQuestionService(newBody).then((res) => {
-            getAllQuestion(page, sortType, sortBy,6, searchText);
-            handleClose();
+            getAllQuestion(page, sortType, sortBy, 6, searchText);
             toast.success('Edit question successfuly !', { position: toast.POSITION.TOP_RIGHT });
-
+            handleClose();
         }).catch((error) => {
-            console.log(error);
             toast.error(t('Edit question fail !'), { position: toast.POSITION.TOP_RIGHT });
         })
     }
@@ -338,9 +434,15 @@ export default function QuestionManagementTeacher() {
         getQuestionByIdService(question.id).then((res) => {
             console.log("getQuestionByIdService ", res.data)
             setQuestionSelect(res.data);
+
             setContentQuestion(res.data.content)
             setQuestionType(res.data.questionType)
-            setListAnswer(res.data.answers)
+            setQuestionId(res.data.questionId)
+            setImageUrl(res.data.imageUrl)
+
+            setListAnswer(res.data.answers.map(answer => {
+                return answer.answerContent;
+            }))
         }).catch(e => {
             toast.error(t('Get question {} fail !').replace('{}', `${question.id}`), {
                 position: toast.POSITION.TOP_RIGHT,
@@ -363,7 +465,7 @@ export default function QuestionManagementTeacher() {
                     type="text"
                     placeholder={t('Search questions')}
                     value={searchText}
-                    onChange={(e)=>handleSearch(e)}
+                    onChange={(e) => handleSearch(e)}
                     className="border p-2 rounded bg-white"
                 />
                 <select
@@ -491,31 +593,112 @@ export default function QuestionManagementTeacher() {
                             ))}
                         </select>
                         <QuestionContentInput onChange={handleInputContent} />
-                        <form onSubmit={form.handleSubmit(submitForm)} className="relative mb-0 space-y-4 rounded-lg pt-4 px-4 shadow-lg ">
-                            {newQuestion.questionType === 'Multiple Choice' && (
+                        {showAllField ? (
+                            <>
+                                <div className='flex flex-col'>
+                                    <div className='my-3 max-w-[40rem] relative mb-0 rounded-lg pt-4 px-4 '>
+                                        <div className='w-full min-h-[230px] h-[230px] relative flex border rounded-sm border-[#003a47]'>
+                                            <div className='h-full flex justify-center items-center px-8  m-auto w-[240px] max-w-[240px]  bg-[#f0f2f4]'>
+                                                {imgLoading ? (
+                                                    <Spinner className='w-[60px] object-cover object-center h-auto' color="teal" />
+                                                ) : (
+                                                    <img
+                                                        src={img ? URL.createObjectURL(img) : imageURL}
+                                                        className='p-2 h-full object-scale-down object-center'
+                                                        alt=""
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className='w-full flex justify-between items-center mt-6 relative h-[40px] border rounded-sm border-[#003a47]'>
+                                            <div className='mx-3 w-full h-full flex items-center '>
+                                                <Typography className='cursor-default'>
+                                                    {img?.name || t("No file selected")}
+                                                </Typography>
+                                                {img && (
+                                                    <span onClick={handleRemoveImg} className='cursor-pointer h-full flex items-center justify-between px-3' title='Hủy' >
+                                                        <FontAwesomeIcon className='' icon={faXmark} />
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                style={{ display: 'none' }}
+                                                onChange={handleImgChange}
+                                                ref={(fileInput) => (setFileInputRef(fileInput))}
+                                            />
+                                            <Button handleOnClick={() => fileInputRef && fileInputRef.click()} className="bg-blue-500 hover:bg-blue-700 !rounded-none !w-[100px] h-full ring-gray-300 hover:opacity-80 text-white" > {t("Select")}</Button>
+                                        </div>
+                                        {/* <label>{t('Audio')}</label>
+                                        <div className='w-full flex justify-between items-center relative h-[40px] border rounded-sm border-[#003a47]'>
 
-                                <MultipleChoiceAnswers
-                                    handleOptionChange={handleOptionChange}
-                                    selectedOption={selectedOption}
-                                    setListAnswer={setListAnswer}
-                                    listAnswer={listAnswer}
-                                    isChooseTrue={isChooseTrue}
-                                />
-
-                            )}
-
-                            {newQuestion.questionType === 'True/False' && (
-                                <TrueFalseQuestion selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
-                            )}
-
-                            {newQuestion.questionType === 'Fill in the blank' && (
-                                <ShortAnswerQuestion listAnswer={listAnswer} setListAnswer={setListAnswer} />
-                            )}
-
-                            {/* {questionType === 'Essay' && (
-                                            <EssayQuestion handleInputContent={handleInputContent} />
+                                            <div className='mx-3 w-full h-full flex items-center '>
+                                                <Typography className='cursor-default'>
+                                                    {audio?.name || t("No file selected")}
+                                                </Typography>
+                                                {audio && (
+                                                    <span onClick={handleRemoveAudio} className='cursor-pointer h-full flex items-center justify-between px-3' title='Hủy' >
+                                                        <FontAwesomeIcon className='' icon={faTimes} />
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="file"
+                                                accept="audio/mp3"
+                                                style={{ display: 'none' }}
+                                                onChange={handleAudioChange}
+                                                ref={audioInputRef}
+                                            />
+                                            <Button handleOnClick={() => audioInputRef.current.click()} className="bg-blue-500 hover:bg-blue-700 !rounded-none !w-[100px] h-full ring-gray-300 hover:opacity-80 text-white" > {t("Select")}</Button>
+                                        </div>
+                                        {audio && (
+                                            <audio controls>
+                                                <source src={URL.createObjectURL(audio)} type="audio/mp3" />
+                                                Your browser does not support the audio element.
+                                            </audio>
                                         )} */}
-                        </form>
+                                    </div>
+
+                                    {/* <Button disable={!img} handleOnClick={() => handleUploadImg()} className="bg-[#003a47] w-[100px] h-[40px] ring-gray-300 hover:opacity-80 text-white max-w-[40rem]" rounded >{t('Save')}</Button> */}
+                                </div>
+
+                                <form onSubmit={form.handleSubmit(submitForm)} className="relative mb-0 space-y-4 rounded-lg pt-4 px-4 ">
+                                    {questionType === 'Multiple Choice' && (
+
+                                        <MultipleChoiceAnswers
+                                            handleOptionChange={handleOptionChange}
+                                            selectedOption={selectedOption}
+                                            setListAnswer={setListAnswer}
+                                            listAnswer={listAnswer}
+                                            isChooseTrue={isChooseTrue}
+                                        />
+
+                                    )}
+
+                                    {questionType === 'True/False' && (
+                                        <TrueFalseQuestion selectedOption={selectedOption} handleOptionChange={handleOptionChange} />
+                                    )}
+
+                                    {questionType === 'Fill in the blank' && (
+                                        <ShortAnswerQuestion listAnswer={listAnswer} setListAnswer={setListAnswer} />
+                                    )}
+
+                                    {/* {questionType === 'Essay' && (
+                                                                            <EssayQuestion handleInputContent={handleInputContent} />
+                                                                        )} */}
+                                </form>
+                            </>
+                        ) : (
+                            <>
+                                <div className='w-full flex justify-end'>
+                                    <button onClick={() => { handleShowAllField() }} className="bg-blue-500 hover:bg-blue-700 text-white font-bold mt-2 py-2 px-4 rounded">
+                                        {t('Next')}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
                     </div>
                 </ModalCustom>
             )}

@@ -96,9 +96,9 @@ export default function MultipleChoiceAnswers({ questionSelect, listAnswer, setL
                         <input
                             type="radio"
                             name="options"
-                            value={questionSelect ? ans.idAnswerQuestion : ans}
+                            value={ans}
                             className="mr-2"
-                            checked={questionSelect ? (selectedOption == ans.idAnswerQuestion) : (selectedOption === ans)}
+                            checked={ (selectedOption === ans)}
                             onChange={(event) => handleOptionChange(event)}
                         />
                         {

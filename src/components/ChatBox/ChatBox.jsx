@@ -9,6 +9,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useTranslation } from 'react-i18next';
 import { t } from 'i18next';
+import { formatDistanceToNow } from 'date-fns';
 
 
 const ChatBox = ({ senderId, buttonSize }) => {
@@ -71,6 +72,7 @@ const ChatBox = ({ senderId, buttonSize }) => {
         sender: senderId,
         receiver: receiver.id,
         message: message,
+        createdAt:new Date()
       };
 
       sendMessageService(chatMessage).then(res => {
@@ -79,6 +81,7 @@ const ChatBox = ({ senderId, buttonSize }) => {
           senderId: senderId,
           receiverId: receiver.id,
           message: message,
+          createdAt:new Date()
         };
         setMessages(prev => [chatMessage1, ...prev])
         setMessage('')
@@ -125,15 +128,18 @@ const ChatBox = ({ senderId, buttonSize }) => {
                       !isLoading && messages.map((dt) => {
 
                         if (dt.senderId === senderId) {
-
-                          return <li className='flex w-full flex-row-reverse gap-2 items-start'>
-                            <p className='p-2 rounded-xl bg-slate-100'>{dt.message}</p>
+                          console.log(dt.createdAt)
+                          return <li className='flex w-full flex-row-reverse gap-2 items-center'>
+                            <p className='p-2 rounded-xl bg-slate-100 max-w-[96px] break-words'>{dt.message}</p>
+                            <p className='text-[8px] align-text-bottom mt-auto text-slate-500'> {formatDistanceToNow(new Date(dt.createdAt), { addSuffix: true })}</p>
                           </li>
                         }
 
-                        return <li className='flex w-full gap-1 items-start'>
+                        return <li className='flex w-full gap-1 items-center'>
                           <div className='w-8 h-8 bg-red-400 rounded-full'></div>
                           <p className='p-2 rounded-xl bg-slate-100 max-w-[96px] break-words'>{dt.message}</p>
+                          <p className='text-[8px] align-text-bottom mt-auto text-slate-500'> {formatDistanceToNow(new Date(dt.createdAt), { addSuffix: true })}</p>
+
                         </li>
                       })
                     }
@@ -260,13 +266,13 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
     <div className="space-y-4 bg-gray-50 p-4 rounded-lg shadow-md w-full">
       <h2 className="text-xl font-semibold mb-4">{t('Chat')}</h2>
       <div className="flex mb-4">
-            <input
-              onChange={(e) => { setSearchData(e.target.value) }}
-              type="text"
-              className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-2xl w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder={t("Search")}
-            />
-          </div>
+        <input
+          onChange={(e) => { setSearchData(e.target.value) }}
+          type="text"
+          className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-2xl w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder={t("Search")}
+        />
+      </div>
       <div
         id="scrollableDiv"
         className='h-[80px] overflow-y-auto scroll-smooth'
@@ -282,7 +288,7 @@ const UserList = ({ onUserSelect, receiverId, reload }) => {
           scrollThreshold={0.9}
 
         >
-         
+
           {users.map((user) => {
             console.log(users)
             return (
